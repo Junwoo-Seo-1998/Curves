@@ -19,6 +19,7 @@ namespace mat_290_framework
         private float padding_top = 0;
         private float padding_bottom = 0;
         private float y_min_max = 3.0f;
+        
         public MAT290()
         {
             InitializeComponent();
@@ -312,6 +313,13 @@ namespace mat_290_framework
             Menu_Shell.Enabled = true;
 
             ToggleDeBoorHUD(false);
+            Lbl_degree.Visible = true;
+            NUD_degree.Visible = true;
+
+            degree_ = 1;
+            pts_.Clear();
+            pts_.Add(GraphPointToWindowPoint(new Point2D(0, 1.0f)));
+            pts_.Add(GraphPointToWindowPoint(new Point2D(1.0f, 1.0f)));
 
             Refresh();
         }
@@ -532,7 +540,8 @@ namespace mat_290_framework
             System.Drawing.Pen splinePen = new Pen(Color.Navy, 1.5f);
 
             System.Drawing.Pen xPen = new Pen(Color.Red, 0.5f);
-            System.Drawing.Pen yPen = new Pen(Color.DeepSkyBlue,10.0f);
+            System.Drawing.Pen hlinePen = new Pen(Color.DimGray, 0.25f);
+            System.Drawing.Pen yPen = new Pen(Color.DeepSkyBlue,0.5f);
 
             if (Menu_Shell.Checked)
             {
@@ -570,6 +579,31 @@ namespace mat_290_framework
             // DeCastlejau algorithm
             if (Menu_DeCast.Checked)
             {
+                PointF p1 = new PointF(50, 50);
+                PointF p2 = new PointF(950, 50);
+                gfx.DrawLine(shellPen, p1, p2);
+
+                p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
+
+                gfx.DrawLine(yPen, p1, p2);
+
+                p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
+                gfx.DrawLine(xPen, p1, p2);
+
+                for (int i = 1; i <= 3; i++)
+                {
+                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
+                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
+                    gfx.DrawLine(hlinePen, p1, p2);
+
+                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
+                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
+                    gfx.DrawLine(hlinePen, p1, p2);
+                }
+
+
                 Point2D current_left;
                 Point2D current_right = new Point2D(DeCastlejau(0));
 
@@ -590,14 +624,25 @@ namespace mat_290_framework
                 PointF p2 = new PointF(950, 50);
                 gfx.DrawLine(shellPen, p1, p2);
 
-                p1 = GraphPointToWindowPoint(new Point2D(0.001f, 3)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(0.001f, -3)).P();
+                p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
 
                 gfx.DrawLine(yPen, p1, p2);
 
                 p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
                 p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
                 gfx.DrawLine(xPen, p1, p2);
+
+                for (int i = 1; i <= 3; i++)
+                {
+                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
+                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
+                    gfx.DrawLine(hlinePen, p1, p2);
+
+                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
+                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
+                    gfx.DrawLine(hlinePen, p1, p2);
+                }
 
                 Point2D current_left;
                 Point2D current_right = new Point2D(Bernstein(0));
@@ -712,12 +757,29 @@ namespace mat_290_framework
 
         private Point2D DeCastlejau(float t)
         {
-            return new Point2D(0, 0);
+            List<float> decast_vals = new List<float>();
+            float one_min_t = 1.0f - t;
+
+            for (int i = 0; i < pts_.Count; ++i)
+            {
+                float y = WindowPointToGraphPoint(pts_[i]).y;
+                decast_vals.Add(y);
+            }
+
+            for (int deg = degree_; deg >= 0; --deg) 
+            {
+                for (int i = 0; i < deg; i++)
+                {
+                    decast_vals[i] = decast_vals[i] * one_min_t + decast_vals[i + 1] * t;
+                }
+            }
+
+            var graphPointToWindow = GraphPointToWindowPoint(new Point2D(t, decast_vals[0]));
+            return graphPointToWindow;
         }
 
         private Point2D Bernstein(float t)
         {
-            //Console.WriteLine(degree_);
             List<float> one_min_t_pows=new List<float>();
             List<float> t_pows = new List<float>();
             one_min_t_pows.Add(1);
