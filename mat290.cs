@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Windows.Forms;
@@ -14,11 +15,17 @@ namespace mat_290_framework
         public List<List<int>> PascalValues;
         private float padding_left = 0;
         private float padding_right = 0;
+
+        private float padding_top = 0;
+        private float padding_bottom = 0;
+        private float y_min_max = 3.0f;
         public MAT290()
         {
             InitializeComponent();
             padding_left = Bounds.Width * 0.1f;
             padding_right = Bounds.Width * 0.1f;
+            padding_top = Bounds.Height * 0.1f;
+            padding_bottom = Bounds.Height * 0.1f;
             pts_ = new List<Point2D>();
             tVal_ = 0.5F;
             degree_ = 0;
@@ -489,9 +496,13 @@ namespace mat_290_framework
         {
             double w=Bounds.Width;
             double h =Bounds.Height;
+
+            double By = (h - padding_bottom + padding_top) / 2.0;
+            double Ay = (padding_top - By) / (double)y_min_max;
+
             double x = point.x / (w - padding_right - padding_left) +
                        (-padding_left / (w - padding_right - padding_left));
-            double y = point.y * (-6.0d / h) + 3;
+            double y = (point.y / Ay) + (-By / Ay);//point.y * (-6.0d / h) + 3;
             return new Point2D((float)x, (float)y);
         }
 
@@ -499,8 +510,12 @@ namespace mat_290_framework
         {
             double w = Bounds.Width;
             double h = Bounds.Height;
+
+            double By = (h - padding_bottom + padding_top) / 2.0;
+            double Ay = (padding_top - By) / (double)y_min_max;
+
             double x = (w - padding_right - padding_left) * point.x + padding_left;
-            double y = (-h / 6) * point.y + (h / 2);
+            double y = Ay * point.y + By;//(-h / 6) * point.y + (h / 2);
 
             return new Point2D((float)x, (float)y);
         }
