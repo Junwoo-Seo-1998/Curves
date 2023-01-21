@@ -274,10 +274,12 @@ namespace mat_290_framework
             this.Controls.Add(this.Txt_knot);
             this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
+            this.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "MAT290";
-            this.Text = "MAT290Framework";
+            this.Text = "MAT300-junwoo.seo";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MAT290_Paint);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MAT290_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MAT290_MouseMove);

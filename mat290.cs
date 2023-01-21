@@ -26,7 +26,7 @@ namespace mat_290_framework
             templab.Text = text;
             templab.Location = GraphPointToWindowPoint(pos).P();
             //templab.AutoSize = true;
-            templab.Font= new Font("Calibri", 10);
+            templab.Font= new Font("Arial", 10);
             templab.BackColor = System.Drawing.Color.Transparent;
             // Adding this control to the form
             Controls.Add(templab);
@@ -70,7 +70,7 @@ namespace mat_290_framework
                 }
                 PascalValues[row].Add(1);
             }
-
+            Menu_Bern_Click(null,null);
         }
 
         // Point class for general math use
@@ -653,7 +653,7 @@ namespace mat_290_framework
                 foreach (var point in pts_)
                 {
                     float t = WindowPointToGraphPoint(point).y;
-                    gfx.DrawString(t.ToString(), bFont, Brushes.Gray, point.x, point.y + 10);
+                    gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
                 }
 
                 Point2D current_left;
@@ -702,7 +702,7 @@ namespace mat_290_framework
                 foreach (var point in pts_)
                 {
                     float t = WindowPointToGraphPoint(point).y;
-                    gfx.DrawString(t.ToString(), bFont, Brushes.Gray, point.x, point.y + 10);
+                    gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
                 }
 
                 Point2D current_left;
@@ -799,11 +799,11 @@ namespace mat_290_framework
                 gfx.DrawString("DeBoor", arial, Brushes.Black, 0, 30);
             }
 
-            gfx.DrawString("t-value: " + tVal_.ToString("F"), arial, Brushes.Black, 500, 30);
+            //gfx.DrawString("t-value: " + tVal_.ToString("F"), arial, Brushes.Black, 500, 30);
 
-            gfx.DrawString("t-step: " + alpha.ToString("F6"), arial, Brushes.Black, 600, 30);
+            //gfx.DrawString("t-step: " + alpha.ToString("F6"), arial, Brushes.Black, 600, 30);
 
-            gfx.DrawString(pts_.Count.ToString(), arial, Brushes.Black, 750, 30);
+            gfx.DrawString("points: "+pts_.Count.ToString(), arial, Brushes.Black, 750, 30);
         }
 
         private void DrawShell(System.Drawing.Graphics gfx, System.Drawing.Pen pen, List<Point2D> pts, float t)
