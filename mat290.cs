@@ -32,15 +32,6 @@ namespace mat_290_framework
             Controls.Add(templab);
             labels.Add(templab);
         }
-        private void MakeLabels()
-        {
-            MakeLabel("0", new Point2D(0f, 0));
-            for (int i = 1; i <= 3; i++)
-            {
-                MakeLabel(i.ToString(), new Point2D(0f, i));
-                MakeLabel((-i).ToString(), new Point2D(0f, -i));
-            }
-        }
 
         private void RemoveLabels()
         {
@@ -369,9 +360,6 @@ namespace mat_290_framework
             ResetPoints();
             NUD_degree.Value = degree_;
 
-            RemoveLabels();
-            MakeLabels();
-
             Refresh();
         }
 
@@ -397,9 +385,6 @@ namespace mat_290_framework
             degree_ = 3;
             ResetPoints();
             NUD_degree.Value = degree_;
-
-            RemoveLabels();
-            MakeLabels();
 
             Refresh();
         }
@@ -600,6 +585,7 @@ namespace mat_290_framework
             System.Drawing.Pen xPen = new Pen(Color.Red, 0.5f);
             System.Drawing.Pen hlinePen = new Pen(Color.DimGray, 0.25f);
             System.Drawing.Pen yPen = new Pen(Color.DeepSkyBlue,0.5f);
+            Font bFont = new Font("Arial", 12);
 
             if (Menu_Shell.Checked)
             {
@@ -650,18 +636,25 @@ namespace mat_290_framework
                 p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
                 p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
                 gfx.DrawLine(xPen, p1, p2);
+                gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
 
                 for (int i = 1; i <= 3; i++)
                 {
                     p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
                     p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
                     gfx.DrawLine(hlinePen, p1, p2);
+                    gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
 
                     p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
                     p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
                     gfx.DrawLine(hlinePen, p1, p2);
+                    gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
                 }
-
+                foreach (var point in pts_)
+                {
+                    float t = WindowPointToGraphPoint(point).y;
+                    gfx.DrawString(t.ToString(), bFont, Brushes.Gray, point.x, point.y + 10);
+                }
 
                 Point2D current_left;
                 Point2D current_right = new Point2D(DeCastlejau(0));
@@ -691,16 +684,25 @@ namespace mat_290_framework
                 p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
                 p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
                 gfx.DrawLine(xPen, p1, p2);
+                gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
 
                 for (int i = 1; i <= 3; i++)
                 {
                     p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
                     p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
                     gfx.DrawLine(hlinePen, p1, p2);
+                    gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X-20, p1.Y-10);
 
                     p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
                     p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
                     gfx.DrawLine(hlinePen, p1, p2);
+                    gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X- 20, p1.Y-10);
+                }
+                
+                foreach (var point in pts_)
+                {
+                    float t = WindowPointToGraphPoint(point).y;
+                    gfx.DrawString(t.ToString(), bFont, Brushes.Gray, point.x, point.y + 10);
                 }
 
                 Point2D current_left;
