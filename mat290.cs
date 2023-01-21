@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Runtime.CompilerServices;
-using System.Runtime.ConstrainedExecution;
+using System.Reflection.Emit;
 using System.Text;
 using System.Windows.Forms;
+using Label = System.Windows.Forms.Label;
 
 namespace mat_290_framework
 {
@@ -19,7 +17,39 @@ namespace mat_290_framework
         private float padding_top = 0;
         private float padding_bottom = 0;
         private float y_min_max = 3.0f;
-        
+        const float rad = 25.0f;
+        private List<Label> labels=new List<Label>();
+
+        private void MakeLabel(string text, Point2D pos)
+        {
+            Label templab = new Label();
+            templab.Text = text;
+            templab.Location = GraphPointToWindowPoint(pos).P();
+            //templab.AutoSize = true;
+            templab.Font= new Font("Calibri", 10);
+            templab.BackColor = System.Drawing.Color.Transparent;
+            // Adding this control to the form
+            Controls.Add(templab);
+            labels.Add(templab);
+        }
+        private void MakeLabels()
+        {
+            MakeLabel("0", new Point2D(0f, 0));
+            for (int i = 1; i <= 3; i++)
+            {
+                MakeLabel(i.ToString(), new Point2D(0f, i));
+                MakeLabel((-i).ToString(), new Point2D(0f, -i));
+            }
+        }
+
+        private void RemoveLabels()
+        {
+            foreach (var label in labels)
+            {
+                Controls.Remove(label);
+            }
+        }
+
         public MAT290()
         {
             InitializeComponent();
@@ -145,6 +175,20 @@ namespace mat_290_framework
 
         private void MAT290_MouseMove(object sender, MouseEventArgs e)
         {
+            if (Menu_DeCast.Checked || Menu_Bern.Checked)
+            {
+                if (pts_.Count != 0 && e.Button == MouseButtons.Left)
+                {
+                    // grab the closest point and snap it to the mouse
+                    int index = PickPt(new Point2D(e.X, e.Y));
+
+                    pts_[index].y = e.Y;
+
+                    Refresh();
+                }
+                return;
+            }
+
             // if the right mouse button is being pressed
             if (pts_.Count != 0 && e.Button == MouseButtons.Right)
             {
@@ -160,6 +204,11 @@ namespace mat_290_framework
 
         private void MAT290_MouseDown(object sender, MouseEventArgs e)
         {
+            if (Menu_DeCast.Checked || Menu_Bern.Checked)
+            {
+                return;
+            }
+
             // if the left mouse button was clicked
             if (e.Button == MouseButtons.Left)
             {
@@ -316,10 +365,12 @@ namespace mat_290_framework
             Lbl_degree.Visible = true;
             NUD_degree.Visible = true;
 
-            degree_ = 1;
-            pts_.Clear();
-            pts_.Add(GraphPointToWindowPoint(new Point2D(0, 1.0f)));
-            pts_.Add(GraphPointToWindowPoint(new Point2D(1.0f, 1.0f)));
+            degree_ = 3;
+            ResetPoints();
+            NUD_degree.Value = degree_;
+
+            RemoveLabels();
+            MakeLabels();
 
             Refresh();
         }
@@ -343,11 +394,12 @@ namespace mat_290_framework
             Lbl_degree.Visible = true;
             NUD_degree.Visible = true;
 
-            degree_ = 1;
-            pts_.Clear();
-            pts_.Add(GraphPointToWindowPoint(new Point2D(0, 1.0f)));
-            pts_.Add(GraphPointToWindowPoint(new Point2D(1.0f, 1.0f)));
+            degree_ = 3;
+            ResetPoints();
+            NUD_degree.Value = degree_;
 
+            RemoveLabels();
+            MakeLabels();
 
             Refresh();
         }
@@ -368,6 +420,8 @@ namespace mat_290_framework
             Menu_Shell.Enabled = true;
 
             ToggleDeBoorHUD(false);
+
+            RemoveLabels();
 
             Refresh();
         }
@@ -391,6 +445,8 @@ namespace mat_290_framework
 
             ToggleDeBoorHUD(false);
 
+            RemoveLabels();
+
             Refresh();
         }
 
@@ -412,6 +468,7 @@ namespace mat_290_framework
             Menu_Shell.Checked = false;
 
             ToggleDeBoorHUD(false);
+            RemoveLabels();
 
             Refresh();
         }
@@ -432,6 +489,7 @@ namespace mat_290_framework
             Menu_Shell.Enabled = true;
 
             ToggleDeBoorHUD(true);
+            RemoveLabels();
 
             Refresh();
         }
@@ -510,7 +568,7 @@ namespace mat_290_framework
 
             double x = point.x / (w - padding_right - padding_left) +
                        (-padding_left / (w - padding_right - padding_left));
-            double y = (point.y / Ay) + (-By / Ay);//point.y * (-6.0d / h) + 3;
+            double y = (point.y / Ay) + (-By / Ay);
             return new Point2D((float)x, (float)y);
         }
 
@@ -523,7 +581,7 @@ namespace mat_290_framework
             double Ay = (padding_top - By) / (double)y_min_max;
 
             double x = (w - padding_right - padding_left) * point.x + padding_left;
-            double y = Ay * point.y + By;//(-h / 6) * point.y + (h / 2);
+            double y = Ay * point.y + By;
 
             return new Point2D((float)x, (float)y);
         }
@@ -563,7 +621,8 @@ namespace mat_290_framework
                 // draw the control points
                 foreach (Point2D pt in pts_)
                 {
-                    gfx.DrawEllipse(polyPen, pt.x - 2.0F, pt.y - 2.0F, 4.0F, 4.0F);
+                    gfx.DrawEllipse(polyPen, pt.x - rad / 2.0f, pt.y - rad / 2.0f, rad, rad);
+                    gfx.DrawEllipse(polyPen, pt.x - rad / 2.0f, pt.y - rad / 2.0f, rad, rad);
                 }
             }
 
