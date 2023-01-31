@@ -19,7 +19,7 @@ namespace mat_290_framework
         private float y_min_max = 3.0f;
         const float rad = 25.0f;
         private List<Label> labels=new List<Label>();
-
+        private List<TrackBar> trackBars = new List<TrackBar>();
         private void MakeLabel(string text, Point2D pos)
         {
             Label templab = new Label();
@@ -38,6 +38,36 @@ namespace mat_290_framework
             foreach (var label in labels)
             {
                 Controls.Remove(label);
+            }
+        }
+        void OnTrackBarValueChanged(object sender, EventArgs e)
+        {
+            // get trackbar, which generated event
+            var trackBar = (TrackBar)sender;
+            float value = trackBar.Value / 100.0f;
+            tVal_ = value;
+            Refresh();
+        }
+        private void MakeTvalSlider()
+        {
+            TrackBar trackBar = new TrackBar();
+            trackBar.ValueChanged += OnTrackBarValueChanged;
+            trackBar.Minimum = 0;
+            trackBar.Maximum = 100;
+            trackBar.Value = 50;
+            trackBar.Width = 200;
+            int w = Bounds.Width;
+            int h = Bounds.Height;
+            trackBar.Location = new Point(w - 250, h - 100);
+            Controls.Add(trackBar);
+            trackBars.Add(trackBar);
+        }
+
+        private void RemoveSlider()
+        {
+            foreach (var tbar in trackBars)
+            {
+                Controls.Remove(tbar);
             }
         }
 
@@ -71,7 +101,8 @@ namespace mat_290_framework
                 PascalValues[row].Add(1);
             }
 
-            Menu_Bezier_DeCast_Click(null, null);
+            shellLinePen.DashPattern = dashValues;
+            Menu_Midpoint_Click(null, null);
         }
 
         // Point class for general math use
@@ -347,7 +378,10 @@ namespace mat_290_framework
 
             Menu_Polyline.Enabled = true;
             Menu_Points.Enabled = true;
-            Menu_Shell.Enabled = true;
+            Menu_Shell.Enabled = false;
+            Menu_Shell.Checked=false;
+
+            RemoveSlider();
         }
         private void Menu_Polyline_Click(object sender, EventArgs e)
         {
@@ -376,7 +410,7 @@ namespace mat_290_framework
             degree_ = 3;
             ResetPoints();
             NUD_degree.Value = degree_;
-
+            
             Refresh();
         }
 
@@ -400,11 +434,12 @@ namespace mat_290_framework
         {
             ResetMenus();
             Menu_BezierCurves_DeCast.Checked = true;
-
+            Menu_Shell.Enabled = true;
+            Menu_Shell.Checked = true;
             ToggleDeBoorHUD(false);
             Lbl_degree.Visible = false;
             NUD_degree.Visible = false;
-
+            MakeTvalSlider();
 
             Refresh();
         }
@@ -426,9 +461,10 @@ namespace mat_290_framework
         {
             ResetMenus();
             Menu_Midpoint.Checked = true;
-
+            Menu_Shell.Enabled = true;
+            Menu_Shell.Checked = true;
             ToggleDeBoorHUD(false);
-
+            MakeTvalSlider();
             Refresh();
         }
 
@@ -558,7 +594,10 @@ namespace mat_290_framework
 
         // pens used for drawing elements of the display
         System.Drawing.Pen polyPen = new Pen(Color.Gray, 1.0f);
-        System.Drawing.Pen shellPen = new Pen(Color.LightGray, 0.5f);
+        System.Drawing.Pen shellPen = new Pen(Color.Red, 0.5f);
+        float[] dashValues = { 5, 2, 15, 4 };
+        System.Drawing.Pen shellLinePen = new Pen(Color.Red, 0.5f);
+
         System.Drawing.Pen splinePen = new Pen(Color.Navy, 1.5f);
 
         System.Drawing.Pen xPen = new Pen(Color.Red, 0.5f);
@@ -696,6 +735,14 @@ namespace mat_290_framework
             {
                 gfx.DrawString("DeCasteljau", arial, Brushes.Black, 0, 30);
             }
+            else if (Menu_BezierCurves_DeCast.Checked)
+            {
+                gfx.DrawString("DeCasteljau", arial, Brushes.Black, 0, 30);
+            }
+            else if (Menu_BezierCurves_Bern.Checked)
+            {
+                gfx.DrawString("Bernstein", arial, Brushes.Black, 0, 30);
+            }
             else if (Menu_Midpoint.Checked)
             {
                 gfx.DrawString("Midpoint", arial, Brushes.Black, 0, 30);
@@ -709,16 +756,51 @@ namespace mat_290_framework
                 gfx.DrawString("DeBoor", arial, Brushes.Black, 0, 30);
             }
 
-            //gfx.DrawString("t-value: " + tVal_.ToString("F"), arial, Brushes.Black, 500, 30);
+            if (Menu_BezierCurves_DeCast.Checked||Menu_Midpoint.Checked)
+            {
+                gfx.DrawString("t-value: " + tVal_.ToString("F"), arial, Brushes.Black, 500, 30);
+            }
 
             //gfx.DrawString("t-step: " + alpha.ToString("F6"), arial, Brushes.Black, 600, 30);
 
             gfx.DrawString("points: "+pts_.Count.ToString(), arial, Brushes.Black, 750, 30);
         }
 
+        private void DrawLineStrip(System.Drawing.Graphics gfx, System.Drawing.Pen pen, List<Point2D> pts)
+        {
+            if (pts.Count < 2)
+                return;
+
+            Point2D current_left = pts[0];
+            Point2D current_right = pts[1];
+            gfx.DrawLine(pen, current_left.P(), current_right.P());
+            for (int i = 2; i < pts.Count; ++i)
+            {
+                current_left = current_right;
+                current_right = pts[i];
+                gfx.DrawLine(pen, current_left.P(), current_right.P());
+            }
+        }
         private void DrawShell(System.Drawing.Graphics gfx, List<Point2D> pts, float t)
         {
-
+            List<Point2D> decast_vals = new List<Point2D>();
+            List<Point2D> points_to_draw = new List<Point2D>();
+            float one_min_t = 1.0f - t;
+            for (int i = 0; i < pts.Count; ++i)
+            {
+                decast_vals.Add(pts[i]);
+            }
+            for (int deg = pts.Count - 1; deg >= 0; --deg)
+            {
+                points_to_draw.Clear();
+                for (int i = 0; i < deg; ++i)
+                {
+                    decast_vals[i] = decast_vals[i] * one_min_t + decast_vals[i + 1] * t;
+                    DrawCircle(gfx, shellPen, decast_vals[i]);
+                    points_to_draw.Add(decast_vals[i]);
+                }
+                DrawLineStrip(gfx, shellLinePen, points_to_draw);
+            }
         }
 
         private Point2D Gamma(int start, int end, float t)
@@ -879,7 +961,6 @@ namespace mat_290_framework
             List<Point2D> decast_vals = new List<Point2D>();
             const float one_half = 0.5f;
 
-
             List<Point2D> leftPoints = new List<Point2D>();
             List<Point2D> rightPoints = new List<Point2D>();
 
@@ -890,7 +971,7 @@ namespace mat_290_framework
             for (int deg = cPs.Count-1; deg >= 0; --deg)
             {
                 leftPoints.Add(decast_vals[0]);
-                for (int i = 0; i < deg; i++)
+                for (int i = 0; i < deg; ++i)
                 {
                     decast_vals[i] = decast_vals[i] * one_half + decast_vals[i + 1] * one_half;
                 }
