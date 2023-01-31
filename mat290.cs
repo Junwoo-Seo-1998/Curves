@@ -461,10 +461,7 @@ namespace mat_290_framework
         {
             ResetMenus();
             Menu_Midpoint.Checked = true;
-            Menu_Shell.Enabled = true;
-            Menu_Shell.Checked = true;
             ToggleDeBoorHUD(false);
-            MakeTvalSlider();
             Refresh();
         }
 
