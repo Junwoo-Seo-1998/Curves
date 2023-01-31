@@ -70,7 +70,8 @@ namespace mat_290_framework
                 }
                 PascalValues[row].Add(1);
             }
-            Menu_Bern_Click(null,null);
+
+            Menu_Bezier_DeCast_Click(null, null);
         }
 
         // Point class for general math use
@@ -195,6 +196,8 @@ namespace mat_290_framework
 
         private void MAT290_MouseDown(object sender, MouseEventArgs e)
         {
+            if(pts_.Count==20)
+                return;
             if (Menu_DeCast.Checked || Menu_Bern.Checked)
             {
                 return;
@@ -203,6 +206,7 @@ namespace mat_290_framework
             // if the left mouse button was clicked
             if (e.Button == MouseButtons.Left)
             {
+                
                 // add a new point to the controlPoints
                 pts_.Add(new Point2D(e.X, e.Y));
 
@@ -210,6 +214,10 @@ namespace mat_290_framework
                 {
                     ResetKnotSeq();
                     UpdateKnotSeq();
+                }
+                else
+                {
+                    degree_ = pts_.Count - 1;
                 }
 
                 Refresh();
@@ -322,6 +330,25 @@ namespace mat_290_framework
             Refresh();
         }
 
+        private void ResetMenus()
+        {
+            Menu_BezierCurves_DeCast.Checked = false;
+            Menu_BezierCurves_Bern.Checked = false;
+
+            Menu_Bern.Checked = false;
+            Menu_DeCast.Checked = false;
+
+            Menu_Midpoint.Checked = false;
+
+            Menu_Inter_Poly.Checked = false;
+            Menu_Inter_Splines.Checked = false;
+
+            Menu_DeBoor.Checked = false;
+
+            Menu_Polyline.Enabled = true;
+            Menu_Points.Enabled = true;
+            Menu_Shell.Enabled = true;
+        }
         private void Menu_Polyline_Click(object sender, EventArgs e)
         {
             Refresh();
@@ -339,18 +366,8 @@ namespace mat_290_framework
 
         private void Menu_DeCast_Click(object sender, EventArgs e)
         {
-            Menu_DeCast.Checked = !Menu_DeCast.Checked;
-            Menu_Bern.Checked = false;
-            Menu_Midpoint.Checked = false;
-
-            Menu_Inter_Poly.Checked = false;
-            Menu_Inter_Splines.Checked = false;
-
-            Menu_DeBoor.Checked = false;
-
-            Menu_Polyline.Enabled = true;
-            Menu_Points.Enabled = true;
-            Menu_Shell.Enabled = true;
+            ResetMenus();
+            Menu_DeCast.Checked = true;
 
             ToggleDeBoorHUD(false);
             Lbl_degree.Visible = true;
@@ -365,18 +382,8 @@ namespace mat_290_framework
 
         private void Menu_Bern_Click(object sender, EventArgs e)
         {
-            Menu_DeCast.Checked = false;
-            Menu_Bern.Checked = !Menu_Bern.Checked;
-            Menu_Midpoint.Checked = false;
-
-            Menu_Inter_Poly.Checked = false;
-            Menu_Inter_Splines.Checked = false;
-
-            Menu_DeBoor.Checked = false;
-
-            Menu_Polyline.Enabled = true;
-            Menu_Points.Enabled = true;
-            Menu_Shell.Enabled = true;
+            ResetMenus();
+            Menu_Bern.Checked = true;
 
             ToggleDeBoorHUD(false);
             Lbl_degree.Visible = true;
@@ -389,68 +396,56 @@ namespace mat_290_framework
             Refresh();
         }
 
-        private void Menu_Midpoint_Click(object sender, EventArgs e)
+        private void Menu_Bezier_DeCast_Click(object sender, EventArgs e)
         {
-            Menu_DeCast.Checked = false;
-            Menu_Bern.Checked = false;
-            Menu_Midpoint.Checked = !Menu_Midpoint.Checked;
-
-            Menu_Inter_Poly.Checked = false;
-            Menu_Inter_Splines.Checked = false;
-
-            Menu_DeBoor.Checked = false;
-
-            Menu_Polyline.Enabled = true;
-            Menu_Points.Enabled = true;
-            Menu_Shell.Enabled = true;
+            ResetMenus();
+            Menu_BezierCurves_DeCast.Checked = true;
 
             ToggleDeBoorHUD(false);
+            Lbl_degree.Visible = false;
+            NUD_degree.Visible = false;
 
-            RemoveLabels();
+
+            Refresh();
+        }
+
+        private void Menu_BezierCurves_Bern_Click(object sender, EventArgs e)
+        {
+            ResetMenus();
+            Menu_BezierCurves_Bern.Checked = true;
+
+            ToggleDeBoorHUD(false);
+            Lbl_degree.Visible = false;
+            NUD_degree.Visible = false;
+
+
+            Refresh();
+        }
+
+        private void Menu_Midpoint_Click(object sender, EventArgs e)
+        {
+            ResetMenus();
+            Menu_Midpoint.Checked = true;
+
+            ToggleDeBoorHUD(false);
 
             Refresh();
         }
 
         private void Menu_Inter_Poly_Click(object sender, EventArgs e)
         {
-            Menu_DeCast.Checked = false;
-            Menu_Bern.Checked = false;
-            Menu_Midpoint.Checked = false;
-
-            Menu_Inter_Poly.Checked = !Menu_Inter_Poly.Checked;
-            Menu_Inter_Splines.Checked = false;
-
-            Menu_DeBoor.Checked = false;
-
-            Menu_Polyline.Enabled = false;
-            Menu_Polyline.Checked = false;
-            Menu_Points.Enabled = true;
-            Menu_Shell.Enabled = false;
-            Menu_Shell.Checked = false;
+            ResetMenus();
+            Menu_Inter_Poly.Checked = true;
 
             ToggleDeBoorHUD(false);
-
-            RemoveLabels();
 
             Refresh();
         }
 
         private void Menu_Inter_Splines_Click(object sender, EventArgs e)
         {
-            Menu_DeCast.Checked = false;
-            Menu_Bern.Checked = false;
-            Menu_Midpoint.Checked = false;
-
-            Menu_Inter_Poly.Checked = false;
-            Menu_Inter_Splines.Checked = !Menu_Inter_Splines.Checked;
-
-            Menu_DeBoor.Checked = false;
-
-            Menu_Polyline.Enabled = false;
-            Menu_Polyline.Checked = false;
-            Menu_Points.Enabled = true;
-            Menu_Shell.Enabled = false;
-            Menu_Shell.Checked = false;
+            ResetMenus();
+            Menu_Inter_Splines.Checked = true;
 
             ToggleDeBoorHUD(false);
             RemoveLabels();
@@ -460,18 +455,8 @@ namespace mat_290_framework
 
         private void Menu_DeBoor_Click(object sender, EventArgs e)
         {
-            Menu_DeCast.Checked = false;
-            Menu_Bern.Checked = false;
-            Menu_Midpoint.Checked = false;
-
-            Menu_Inter_Poly.Checked = false;
-            Menu_Inter_Splines.Checked = false;
-
-            Menu_DeBoor.Checked = !Menu_DeBoor.Checked;
-
-            Menu_Polyline.Enabled = true;
-            Menu_Points.Enabled = true;
-            Menu_Shell.Enabled = true;
+            ResetMenus();
+            Menu_DeBoor.Checked = true;
 
             ToggleDeBoorHUD(true);
             RemoveLabels();
@@ -571,21 +556,21 @@ namespace mat_290_framework
             return new Point2D((float)x, (float)y);
         }
 
+        // pens used for drawing elements of the display
+        System.Drawing.Pen polyPen = new Pen(Color.Gray, 1.0f);
+        System.Drawing.Pen shellPen = new Pen(Color.LightGray, 0.5f);
+        System.Drawing.Pen splinePen = new Pen(Color.Navy, 1.5f);
+
+        System.Drawing.Pen xPen = new Pen(Color.Red, 0.5f);
+        System.Drawing.Pen hlinePen = new Pen(Color.DimGray, 0.25f);
+        System.Drawing.Pen yPen = new Pen(Color.DeepSkyBlue, 0.5f);
+        Font bFont = new Font("Arial", 12);
+
         private void DrawScreen(System.Drawing.Graphics gfx)
         {
             // to prevent unecessary drawing
             if (pts_.Count == 0)
                 return;
-
-            // pens used for drawing elements of the display
-            System.Drawing.Pen polyPen = new Pen(Color.Gray, 1.0f);
-            System.Drawing.Pen shellPen = new Pen(Color.LightGray, 0.5f);
-            System.Drawing.Pen splinePen = new Pen(Color.Navy, 1.5f);
-
-            System.Drawing.Pen xPen = new Pen(Color.Red, 0.5f);
-            System.Drawing.Pen hlinePen = new Pen(Color.DimGray, 0.25f);
-            System.Drawing.Pen yPen = new Pen(Color.DeepSkyBlue,0.5f);
-            Font bFont = new Font("Arial", 12);
 
             if (Menu_Shell.Checked)
             {
@@ -624,98 +609,23 @@ namespace mat_290_framework
             // DeCastlejau algorithm
             if (Menu_DeCast.Checked)
             {
-                PointF p1 = new PointF(50, 50);
-                PointF p2 = new PointF(950, 50);
-                gfx.DrawLine(shellPen, p1, p2);
-
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
-
-                gfx.DrawLine(yPen, p1, p2);
-
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
-                gfx.DrawLine(xPen, p1, p2);
-                gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
-
-                for (int i = 1; i <= 3; i++)
-                {
-                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
-                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
-                    gfx.DrawLine(hlinePen, p1, p2);
-                    gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
-
-                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
-                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
-                    gfx.DrawLine(hlinePen, p1, p2);
-                    gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
-                }
-                foreach (var point in pts_)
-                {
-                    float t = WindowPointToGraphPoint(point).y;
-                    gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
-                }
-
-                Point2D current_left;
-                Point2D current_right = new Point2D(DeCastlejau(0));
-
-                for (float t = alpha; t < 1; t += alpha)
-                {
-                    current_left = current_right;
-                    current_right = DeCastlejau(t);
-                    gfx.DrawLine(splinePen, current_left.P(), current_right.P());
-                }
-
-                gfx.DrawLine(splinePen, current_right.P(), DeCastlejau(1).P());
+                DrawDeCastlejau(gfx, alpha);
             }
 
             // Bernstein polynomial
             if (Menu_Bern.Checked)
             {
-                PointF p1 = new PointF(50, 50);
-                PointF p2 = new PointF(950, 50);
-                gfx.DrawLine(shellPen, p1, p2);
+                DrawBernstein(gfx, alpha);
+            }
+            // BezierCurves using De Casteljau Algorithm
+            if (Menu_BezierCurves_DeCast.Checked)
+            {
+                DrawBezier_DeCast(gfx, alpha);
+            }
 
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
-
-                gfx.DrawLine(yPen, p1, p2);
-
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
-                gfx.DrawLine(xPen, p1, p2);
-                gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
-
-                for (int i = 1; i <= 3; i++)
-                {
-                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
-                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
-                    gfx.DrawLine(hlinePen, p1, p2);
-                    gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X-20, p1.Y-10);
-
-                    p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
-                    p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
-                    gfx.DrawLine(hlinePen, p1, p2);
-                    gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X- 20, p1.Y-10);
-                }
-                
-                foreach (var point in pts_)
-                {
-                    float t = WindowPointToGraphPoint(point).y;
-                    gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
-                }
-
-                Point2D current_left;
-                Point2D current_right = new Point2D(Bernstein(0));
-
-                for (float t = alpha; t < 1; t += alpha)
-                {
-                    current_left = current_right;
-                    current_right = Bernstein(t);
-                    gfx.DrawLine(splinePen, current_left.P(), current_right.P());
-                }
-
-                gfx.DrawLine(splinePen, current_right.P(), Bernstein(1).P());
+            if (Menu_BezierCurves_Bern.Checked)
+            {
+                DrawBezier_Bern(gfx, alpha);
             }
 
             // Midpoint algorithm
@@ -861,13 +771,182 @@ namespace mat_290_framework
             return graphPointToWindow;
         }
 
+        private Point2D Bezier_Bernstein(float t)
+        {
+            List<float> one_min_t_pows = new List<float>();
+            List<float> t_pows = new List<float>();
+            one_min_t_pows.Add(1);
+            t_pows.Add(1);
+            for (int i = 1; i <= degree_; i++)
+            {
+                one_min_t_pows.Add(one_min_t_pows[i - 1] * (1 - t));
+                t_pows.Add(t_pows[i - 1] * t);
+            }
+
+            Point2D sum = new Point2D(0, 0);
+            for (int i = 0; i <= degree_; i++)
+            {
+                Point2D control_point = new Point2D(pts_[i].x, pts_[i].y);
+                sum.x += control_point.x * PascalValues[degree_][i] * one_min_t_pows[degree_ - i] * t_pows[i];
+                sum.y += control_point.y * PascalValues[degree_][i] * one_min_t_pows[degree_ - i] * t_pows[i];
+            }
+
+            return sum;
+        }
+
+        private Point2D Bezier_DeCastlejau(float t)
+        {
+            List<Point2D> decast_vals = new List<Point2D>();
+            float one_min_t = 1.0f - t;
+
+            for (int i = 0; i < pts_.Count; ++i)
+            {
+                decast_vals.Add(pts_[i]);
+            }
+
+            for (int deg = degree_; deg >= 0; --deg)
+            {
+                for (int i = 0; i < deg; i++)
+                {
+                    decast_vals[i] = decast_vals[i] * one_min_t + decast_vals[i + 1] * t;
+                }
+            }
+
+            return decast_vals[0];
+        }
+
+
         private const float MAX_DIST = 6.0F;
+
+        private void DrawBezier_Bern(System.Drawing.Graphics gfx, float alpha)
+        {
+            Point2D current_left;
+            Point2D current_right = new Point2D(Bezier_Bernstein(0));
+
+            for (float t = alpha; t < 1; t += alpha)
+            {
+                current_left = current_right;
+                current_right = Bezier_Bernstein(t);
+                gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+            }
+
+            gfx.DrawLine(splinePen, current_right.P(), Bezier_Bernstein(1).P());
+        }
+
+        private void DrawBezier_DeCast(System.Drawing.Graphics gfx, float alpha)
+        {
+            Point2D current_left;
+            Point2D current_right = new Point2D(Bezier_DeCastlejau(0));
+
+            for (float t = alpha; t < 1; t += alpha)
+            {
+                current_left = current_right;
+                current_right = Bezier_DeCastlejau(t);
+                gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+            }
+
+            gfx.DrawLine(splinePen, current_right.P(), Bezier_DeCastlejau(1).P());
+        }
 
         private void DrawMidpoint(System.Drawing.Graphics gfx, System.Drawing.Pen pen, List<Point2D> cPs)
         {
 
         }
 
+        private void DrawDeCastlejau(System.Drawing.Graphics gfx, float alpha)
+        {
+            PointF p1 = new PointF(50, 50);
+            PointF p2 = new PointF(950, 50);
+            gfx.DrawLine(shellPen, p1, p2);
+
+            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
+            p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
+
+            gfx.DrawLine(yPen, p1, p2);
+
+            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
+            p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
+            gfx.DrawLine(xPen, p1, p2);
+            gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
+
+            for (int i = 1; i <= 3; i++)
+            {
+                p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
+
+                p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
+            }
+            foreach (var point in pts_)
+            {
+                float t = WindowPointToGraphPoint(point).y;
+                gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
+            }
+
+            Point2D current_left;
+            Point2D current_right = new Point2D(DeCastlejau(0));
+
+            for (float t = alpha; t < 1; t += alpha)
+            {
+                current_left = current_right;
+                current_right = DeCastlejau(t);
+                gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+            }
+
+            gfx.DrawLine(splinePen, current_right.P(), DeCastlejau(1).P());
+        }
+
+        private void DrawBernstein(System.Drawing.Graphics gfx, float alpha)
+        {
+            PointF p1 = new PointF(50, 50);
+            PointF p2 = new PointF(950, 50);
+            gfx.DrawLine(shellPen, p1, p2);
+
+            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
+            p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
+
+            gfx.DrawLine(yPen, p1, p2);
+
+            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
+            p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
+            gfx.DrawLine(xPen, p1, p2);
+            gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
+
+            for (int i = 1; i <= 3; i++)
+            {
+                p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
+
+                p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
+            }
+
+            foreach (var point in pts_)
+            {
+                float t = WindowPointToGraphPoint(point).y;
+                gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
+            }
+
+            Point2D current_left;
+            Point2D current_right = new Point2D(Bernstein(0));
+
+            for (float t = alpha; t < 1; t += alpha)
+            {
+                current_left = current_right;
+                current_right = Bernstein(t);
+                gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+            }
+
+            gfx.DrawLine(splinePen, current_right.P(), Bernstein(1).P());
+        }
         private Point2D PolyInterpolate(float t)
         {
             return new Point2D(0, 0);
@@ -882,5 +961,7 @@ namespace mat_290_framework
         {
             return new Point2D(0, 0);
         }
+
+
     }
 }

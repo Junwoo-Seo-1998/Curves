@@ -37,8 +37,10 @@ namespace mat_290_framework
             this.Menu_Points = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Shell = new System.Windows.Forms.ToolStripMenuItem();
             this.methodToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.Menu_DeCast = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Bern = new System.Windows.Forms.ToolStripMenuItem();
+            this.Menu_DeCast = new System.Windows.Forms.ToolStripMenuItem();
+            this.Menu_BezierCurves = new System.Windows.Forms.ToolStripMenuItem();
+            this.Menu_BezierCurves_DeCast = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Midpoint = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Inter = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Inter_Poly = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,6 +51,7 @@ namespace mat_290_framework
             this.Lbl_knot = new System.Windows.Forms.Label();
             this.NUD_degree = new System.Windows.Forms.NumericUpDown();
             this.CB_cont = new System.Windows.Forms.CheckBox();
+            this.Menu_BezierCurves_Bern = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_degree)).BeginInit();
             this.SuspendLayout();
@@ -132,8 +135,9 @@ namespace mat_290_framework
             // methodToolStripMenuItem
             // 
             this.methodToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.Menu_DeCast,
             this.Menu_Bern,
+            this.Menu_DeCast,
+            this.Menu_BezierCurves,
             this.Menu_Midpoint,
             this.Menu_Inter,
             this.Menu_DeBoor});
@@ -141,24 +145,40 @@ namespace mat_290_framework
             this.methodToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.methodToolStripMenuItem.Text = "&Method";
             // 
-            // Menu_DeCast
-            // 
-            this.Menu_DeCast.Name = "Menu_DeCast";
-            this.Menu_DeCast.Size = new System.Drawing.Size(137, 22);
-            this.Menu_DeCast.Text = "&DeCastlejau";
-            this.Menu_DeCast.Click += new System.EventHandler(this.Menu_DeCast_Click);
-            // 
             // Menu_Bern
             // 
             this.Menu_Bern.Name = "Menu_Bern";
-            this.Menu_Bern.Size = new System.Drawing.Size(137, 22);
+            this.Menu_Bern.Size = new System.Drawing.Size(180, 22);
             this.Menu_Bern.Text = "&Bernstein";
             this.Menu_Bern.Click += new System.EventHandler(this.Menu_Bern_Click);
+            // 
+            // Menu_DeCast
+            // 
+            this.Menu_DeCast.Name = "Menu_DeCast";
+            this.Menu_DeCast.Size = new System.Drawing.Size(180, 22);
+            this.Menu_DeCast.Text = "&DeCastlejau";
+            this.Menu_DeCast.Click += new System.EventHandler(this.Menu_DeCast_Click);
+            // 
+            // Menu_BezierCurves
+            // 
+            this.Menu_BezierCurves.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Menu_BezierCurves_DeCast,
+            this.Menu_BezierCurves_Bern});
+            this.Menu_BezierCurves.Name = "Menu_BezierCurves";
+            this.Menu_BezierCurves.Size = new System.Drawing.Size(180, 22);
+            this.Menu_BezierCurves.Text = "Bezier Curves";
+            // 
+            // Menu_BezierCurves_DeCast
+            // 
+            this.Menu_BezierCurves_DeCast.Name = "Menu_BezierCurves_DeCast";
+            this.Menu_BezierCurves_DeCast.Size = new System.Drawing.Size(180, 22);
+            this.Menu_BezierCurves_DeCast.Text = "DeCastlejau";
+            this.Menu_BezierCurves_DeCast.Click += new System.EventHandler(this.Menu_Bezier_DeCast_Click);
             // 
             // Menu_Midpoint
             // 
             this.Menu_Midpoint.Name = "Menu_Midpoint";
-            this.Menu_Midpoint.Size = new System.Drawing.Size(137, 22);
+            this.Menu_Midpoint.Size = new System.Drawing.Size(180, 22);
             this.Menu_Midpoint.Text = "&Midpoint";
             this.Menu_Midpoint.Click += new System.EventHandler(this.Menu_Midpoint_Click);
             // 
@@ -168,7 +188,7 @@ namespace mat_290_framework
             this.Menu_Inter_Poly,
             this.Menu_Inter_Splines});
             this.Menu_Inter.Name = "Menu_Inter";
-            this.Menu_Inter.Size = new System.Drawing.Size(137, 22);
+            this.Menu_Inter.Size = new System.Drawing.Size(180, 22);
             this.Menu_Inter.Text = "&Interpolate";
             // 
             // Menu_Inter_Poly
@@ -188,7 +208,7 @@ namespace mat_290_framework
             // Menu_DeBoor
             // 
             this.Menu_DeBoor.Name = "Menu_DeBoor";
-            this.Menu_DeBoor.Size = new System.Drawing.Size(137, 22);
+            this.Menu_DeBoor.Size = new System.Drawing.Size(180, 22);
             this.Menu_DeBoor.Text = "DeBoo&r";
             this.Menu_DeBoor.Click += new System.EventHandler(this.Menu_DeBoor_Click);
             // 
@@ -261,6 +281,13 @@ namespace mat_290_framework
             this.CB_cont.Visible = false;
             this.CB_cont.CheckedChanged += new System.EventHandler(this.CB_cont_CheckedChanged);
             // 
+            // Menu_BezierCurves_Bern
+            // 
+            this.Menu_BezierCurves_Bern.Name = "Menu_BezierCurves_Bern";
+            this.Menu_BezierCurves_Bern.Size = new System.Drawing.Size(180, 22);
+            this.Menu_BezierCurves_Bern.Text = "Bernstein";
+            this.Menu_BezierCurves_Bern.Click += new System.EventHandler(this.Menu_BezierCurves_Bern_Click);
+            // 
             // MAT290
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -315,6 +342,9 @@ namespace mat_290_framework
         private System.Windows.Forms.Label Lbl_knot;
         private System.Windows.Forms.NumericUpDown NUD_degree;
         private System.Windows.Forms.CheckBox CB_cont;
+        private System.Windows.Forms.ToolStripMenuItem Menu_BezierCurves;
+        private System.Windows.Forms.ToolStripMenuItem Menu_BezierCurves_DeCast;
+        private System.Windows.Forms.ToolStripMenuItem Menu_BezierCurves_Bern;
     }
 }
 
