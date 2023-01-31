@@ -575,7 +575,7 @@ namespace mat_290_framework
             if (Menu_Shell.Checked)
             {
                 // draw the shell
-                DrawShell(gfx, shellPen, pts_, tVal_);
+                DrawShell(gfx, pts_, tVal_);
             }
 
             if (Menu_Polyline.Checked)
@@ -631,7 +631,7 @@ namespace mat_290_framework
             // Midpoint algorithm
             if (Menu_Midpoint.Checked)
             {
-                DrawMidpoint(gfx, splinePen, pts_);
+                DrawMidpoint(gfx, pts_, 0);
             }
 
             // polygon interpolation
@@ -716,7 +716,7 @@ namespace mat_290_framework
             gfx.DrawString("points: "+pts_.Count.ToString(), arial, Brushes.Black, 750, 30);
         }
 
-        private void DrawShell(System.Drawing.Graphics gfx, System.Drawing.Pen pen, List<Point2D> pts, float t)
+        private void DrawShell(System.Drawing.Graphics gfx, List<Point2D> pts, float t)
         {
 
         }
@@ -816,6 +816,7 @@ namespace mat_290_framework
         }
 
 
+
         private const float MAX_DIST = 6.0F;
 
         private void DrawBezier_Bern(System.Drawing.Graphics gfx, float alpha)
@@ -848,9 +849,56 @@ namespace mat_290_framework
             gfx.DrawLine(splinePen, current_right.P(), Bezier_DeCastlejau(1).P());
         }
 
-        private void DrawMidpoint(System.Drawing.Graphics gfx, System.Drawing.Pen pen, List<Point2D> cPs)
+        private void DrawCircle(System.Drawing.Graphics gfx, System.Drawing.Pen pen, Point2D center, float radius=5.0f)
         {
+            float x = center.x - radius;
+            float y = center.y - radius;
+            float width = 2 * radius;
+            float height = 2 * radius;
+            gfx.DrawEllipse(pen, x, y, width, height);
+        }
 
+        private const int maxRecv = 4;
+        private void DrawMidpoint(System.Drawing.Graphics gfx, List<Point2D> cPs, int recvStep)
+        {
+            if (recvStep == maxRecv)
+            {
+                Point2D current_left;
+                Point2D current_right = cPs[0];
+
+                for (int i = 0; i < cPs.Count; ++i)
+                {
+                    current_left = current_right;
+                    current_right = cPs[i];
+                    gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+                }
+
+                return;
+            }
+
+            List<Point2D> decast_vals = new List<Point2D>();
+            const float one_half = 0.5f;
+
+
+            List<Point2D> leftPoints = new List<Point2D>();
+            List<Point2D> rightPoints = new List<Point2D>();
+
+            for (int i = 0; i < cPs.Count; ++i)
+            {
+                decast_vals.Add(cPs[i]);
+            }
+            for (int deg = cPs.Count-1; deg >= 0; --deg)
+            {
+                leftPoints.Add(decast_vals[0]);
+                for (int i = 0; i < deg; i++)
+                {
+                    decast_vals[i] = decast_vals[i] * one_half + decast_vals[i + 1] * one_half;
+                }
+                rightPoints.Add(decast_vals[deg]);
+            }
+
+            DrawMidpoint(gfx, leftPoints, recvStep + 1);
+            DrawMidpoint(gfx, rightPoints, recvStep + 1);
         }
 
         private void DrawDeCastlejau(System.Drawing.Graphics gfx, float alpha)
