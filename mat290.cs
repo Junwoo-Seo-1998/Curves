@@ -10,7 +10,9 @@ namespace mat_290_framework
 {
     public partial class MAT290 : Form
     {
-        public List<List<int>> PascalValues;
+        private List<List<int>> PascalValues;
+        private List<List<Point2D>> NewtonFormList;
+
         private float padding_left = 0;
         private float padding_right = 0;
 
@@ -85,6 +87,7 @@ namespace mat_290_framework
             EdPtCont_ = true;
             rnd_ = new Random();
             PascalValues=new List<List<int>>();
+            NewtonFormList = new List<List<Point2D>>();
             for (int i = 0; i < 21; ++i)
             {
                 PascalValues.Add(new List<int>());
@@ -108,10 +111,16 @@ namespace mat_290_framework
         // Point class for general math use
         protected class Point2D : System.Object
         {
-            public float x;
-            public float y;
+            public double x;
+            public double y;
 
             public Point2D(float _x, float _y)
+            {
+                x = _x;
+                y = _y;
+            }
+
+            public Point2D(double _x, double _y)
             {
                 x = _x;
                 y = _y;
@@ -129,11 +138,26 @@ namespace mat_290_framework
                 return new Point2D(lhs.x + rhs.x, lhs.y + rhs.y);
             }
 
+            public static Point2D operator -(Point2D lhs, Point2D rhs)
+            {
+                return new Point2D(lhs.x - rhs.x, lhs.y - rhs.y);
+            }
+
+            public static Point2D operator /(Point2D lhs, float val)
+            {
+                return new Point2D(lhs.x / val, lhs.y / val);
+            }
+
+            public static Point2D operator /(Point2D lhs, double val)
+            {
+                return new Point2D(lhs.x / val, lhs.y / val);
+            }
+
             // gets a distance between two points. not actual distance; used for picking
             public static float operator %(Point2D lhs, Point2D rhs)
             {
-                float dx = (lhs.x - rhs.x);
-                float dy = (lhs.y - rhs.y);
+                float dx = (float)(lhs.x - rhs.x);
+                float dy = (float)(lhs.y - rhs.y);
 
                 return (dx * dx + dy * dy);
             }
@@ -146,6 +170,11 @@ namespace mat_290_framework
 
             // scalar multiplication of points; for barycentric combos
             public static Point2D operator *(Point2D rhs, float t)
+            {
+                return new Point2D(rhs.x * t, rhs.y * t);
+            }
+
+            public static Point2D operator *(Point2D rhs, double t)
             {
                 return new Point2D(rhs.x * t, rhs.y * t);
             }
@@ -628,8 +657,8 @@ namespace mat_290_framework
                 // draw the control points
                 foreach (Point2D pt in pts_)
                 {
-                    gfx.DrawEllipse(polyPen, pt.x - rad / 2.0f, pt.y - rad / 2.0f, rad, rad);
-                    gfx.DrawEllipse(polyPen, pt.x - rad / 2.0f, pt.y - rad / 2.0f, rad, rad);
+                    gfx.DrawEllipse(polyPen, (float)(pt.x - rad / 2.0), (float)(pt.y - rad / 2.0), rad, rad);
+                    gfx.DrawEllipse(polyPen, (float)(pt.x - rad / 2.0), (float)(pt.y - rad / 2.0), rad, rad);
                 }
             }
 
@@ -673,17 +702,7 @@ namespace mat_290_framework
             // polygon interpolation
             if (Menu_Inter_Poly.Checked)
             {
-                Point2D current_left;
-                Point2D current_right = new Point2D(PolyInterpolate(0));
-
-                for (float t = alpha; t < 1; t += alpha)
-                {
-                    current_left = current_right;
-                    current_right = PolyInterpolate(t);
-                    gfx.DrawLine(splinePen, current_left.P(), current_right.P());
-                }
-
-                gfx.DrawLine(splinePen, current_right.P(), PolyInterpolate(1).P());
+                DrawPolyInterpolate(gfx, alpha);
             }
 
             // spline interpolation
@@ -812,7 +831,7 @@ namespace mat_290_framework
 
             for (int i = 0; i < pts_.Count; ++i)
             {
-                float y = WindowPointToGraphPoint(pts_[i]).y;
+                float y = (float)WindowPointToGraphPoint(pts_[i]).y;
                 decast_vals.Add(y);
             }
 
@@ -843,7 +862,7 @@ namespace mat_290_framework
             float sum = 0;
             for (int i = 0; i <= degree_; i++)
             {
-                float c = WindowPointToGraphPoint(new Point2D(0, pts_[i].y)).y;
+                float c = (float)WindowPointToGraphPoint(new Point2D(0, pts_[i].y)).y;
                 sum += c * PascalValues[degree_][i] * one_min_t_pows[degree_ - i] * t_pows[i];
             }
             var graphPointToWindow = GraphPointToWindowPoint(new Point2D(t, sum));
@@ -930,8 +949,8 @@ namespace mat_290_framework
 
         private void DrawCircle(System.Drawing.Graphics gfx, System.Drawing.Pen pen, Point2D center, float radius=5.0f)
         {
-            float x = center.x - radius;
-            float y = center.y - radius;
+            float x = (float)center.x - radius;
+            float y = (float)center.y - radius;
             float width = 2 * radius;
             float height = 2 * radius;
             gfx.DrawEllipse(pen, x, y, width, height);
@@ -1009,8 +1028,8 @@ namespace mat_290_framework
             }
             foreach (var point in pts_)
             {
-                float t = WindowPointToGraphPoint(point).y;
-                gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
+                float t = (float)WindowPointToGraphPoint(point).y;
+                gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, (float)point.x, (float)point.y + 10);
             }
 
             Point2D current_left;
@@ -1057,8 +1076,8 @@ namespace mat_290_framework
 
             foreach (var point in pts_)
             {
-                float t = WindowPointToGraphPoint(point).y;
-                gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, point.x, point.y + 10);
+                float t = (float)WindowPointToGraphPoint(point).y;
+                gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, (float)point.x, (float)point.y + 10);
             }
 
             Point2D current_left;
@@ -1073,9 +1092,48 @@ namespace mat_290_framework
 
             gfx.DrawLine(splinePen, current_right.P(), Bernstein(1).P());
         }
+
+        private void DrawPolyInterpolate(System.Drawing.Graphics gfx, float alpha)
+        {
+            if(pts_.Count < 2)
+                return;
+            ReComputeNewton();
+            Point2D current_left;
+            Point2D current_right = new Point2D(PolyInterpolate(0));
+
+            for (float t = alpha; t < pts_.Count - 1; t += alpha)
+            {
+                current_left = current_right;
+                current_right = PolyInterpolate(t);
+                gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+            }
+
+            gfx.DrawLine(splinePen, current_right.P(), PolyInterpolate(pts_.Count - 1).P());
+        }
+        private void ReComputeNewton()
+        {
+            NewtonFormList.Clear();
+            NewtonFormList.Add(pts_);
+            for (int i = 1; i < pts_.Count; i++)
+            {
+                NewtonFormList.Add(new List<Point2D>());
+                for (int j = 0; j < NewtonFormList[i-1].Count-1; j++)
+                {
+                    NewtonFormList[i].Add((NewtonFormList[i - 1][j + 1] - NewtonFormList[i - 1][j]) / (double)i);
+                }
+            }
+        }
         private Point2D PolyInterpolate(float t)
         {
-            return new Point2D(0, 0);
+            Point2D result = new Point2D(0, 0);
+            double t_val = 1.0;
+            for (int i = 0; i < NewtonFormList.Count; i++)
+            {
+                result += NewtonFormList[i][0] * t_val;
+                t_val *= (t - i);
+            }
+
+            return result;
         }
 
         private Point2D SplineInterpolate(float t)
