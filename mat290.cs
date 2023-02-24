@@ -105,7 +105,7 @@ namespace mat_290_framework
             }
 
             shellLinePen.DashPattern = dashValues;
-            Menu_Midpoint_Click(null, null);
+            Menu_Inter_Poly_Click(null, null);
         }
 
         // Point class for general math use
@@ -1095,9 +1095,12 @@ namespace mat_290_framework
 
         private void DrawPolyInterpolate(System.Drawing.Graphics gfx, float alpha)
         {
-            if(pts_.Count < 2)
+            gfx.DrawString("Interpolating Polynomial", bFont, Brushes.Black, 10, 40);
+
+            if (pts_.Count < 2)
                 return;
             ReComputeNewton();
+
             Point2D current_left;
             Point2D current_right = new Point2D(PolyInterpolate(0));
 
