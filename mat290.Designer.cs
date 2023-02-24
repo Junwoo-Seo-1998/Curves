@@ -42,6 +42,7 @@ namespace mat_290_framework
             this.Menu_BezierCurves = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_BezierCurves_DeCast = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_BezierCurves_Bern = new System.Windows.Forms.ToolStripMenuItem();
+            this.Menu_Midpoint = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Inter = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Inter_Poly = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Inter_Splines = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,7 +52,6 @@ namespace mat_290_framework
             this.Lbl_knot = new System.Windows.Forms.Label();
             this.NUD_degree = new System.Windows.Forms.NumericUpDown();
             this.CB_cont = new System.Windows.Forms.CheckBox();
-            this.Menu_Midpoint = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_degree)).BeginInit();
             this.SuspendLayout();
@@ -182,6 +182,13 @@ namespace mat_290_framework
             this.Menu_BezierCurves_Bern.Text = "Bernstein";
             this.Menu_BezierCurves_Bern.Click += new System.EventHandler(this.Menu_BezierCurves_Bern_Click);
             // 
+            // Menu_Midpoint
+            // 
+            this.Menu_Midpoint.Name = "Menu_Midpoint";
+            this.Menu_Midpoint.Size = new System.Drawing.Size(180, 22);
+            this.Menu_Midpoint.Text = "&Midpoint";
+            this.Menu_Midpoint.Click += new System.EventHandler(this.Menu_Midpoint_Click);
+            // 
             // Menu_Inter
             // 
             this.Menu_Inter.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -189,20 +196,20 @@ namespace mat_290_framework
             this.Menu_Inter_Splines});
             this.Menu_Inter.Name = "Menu_Inter";
             this.Menu_Inter.Size = new System.Drawing.Size(198, 22);
-            this.Menu_Inter.Text = "&Interpolate";
+            this.Menu_Inter.Text = "Interpolate(project3/4)";
             // 
             // Menu_Inter_Poly
             // 
             this.Menu_Inter_Poly.Name = "Menu_Inter_Poly";
-            this.Menu_Inter_Poly.Size = new System.Drawing.Size(180, 22);
-            this.Menu_Inter_Poly.Text = "&Polynomial";
+            this.Menu_Inter_Poly.Size = new System.Drawing.Size(186, 22);
+            this.Menu_Inter_Poly.Text = "Polynomial(project3)";
             this.Menu_Inter_Poly.Click += new System.EventHandler(this.Menu_Inter_Poly_Click);
             // 
             // Menu_Inter_Splines
             // 
             this.Menu_Inter_Splines.Name = "Menu_Inter_Splines";
-            this.Menu_Inter_Splines.Size = new System.Drawing.Size(180, 22);
-            this.Menu_Inter_Splines.Text = "&Splines";
+            this.Menu_Inter_Splines.Size = new System.Drawing.Size(186, 22);
+            this.Menu_Inter_Splines.Text = "Splines(project4)";
             this.Menu_Inter_Splines.Click += new System.EventHandler(this.Menu_Inter_Splines_Click);
             // 
             // Menu_DeBoor
@@ -281,13 +288,6 @@ namespace mat_290_framework
             this.CB_cont.Visible = false;
             this.CB_cont.CheckedChanged += new System.EventHandler(this.CB_cont_CheckedChanged);
             // 
-            // Menu_Midpoint
-            // 
-            this.Menu_Midpoint.Name = "Menu_Midpoint";
-            this.Menu_Midpoint.Size = new System.Drawing.Size(180, 22);
-            this.Menu_Midpoint.Text = "&Midpoint";
-            this.Menu_Midpoint.Click += new System.EventHandler(this.Menu_Midpoint_Click);
-            // 
             // MAT290
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
@@ -305,6 +305,7 @@ namespace mat_290_framework
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.MaximizeBox = false;
             this.Name = "MAT290";
             this.Text = "MAT300-junwoo.seo";
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MAT290_Paint);
