@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Reflection.Emit;
@@ -12,6 +13,8 @@ namespace mat_290_framework
     {
         private List<List<int>> PascalValues;
         private List<List<Point2D>> NewtonFormList;
+        private List<double> splineXCoeff;
+        private List<double> splineYCoeff;
 
         private float padding_left = 0;
         private float padding_right = 0;
@@ -88,6 +91,9 @@ namespace mat_290_framework
             rnd_ = new Random();
             PascalValues=new List<List<int>>();
             NewtonFormList = new List<List<Point2D>>();
+            splineXCoeff = new List<double>();
+            splineYCoeff = new List<double>();
+
             for (int i = 0; i < 21; ++i)
             {
                 PascalValues.Add(new List<int>());
@@ -105,7 +111,7 @@ namespace mat_290_framework
             }
 
             shellLinePen.DashPattern = dashValues;
-            Menu_Inter_Poly_Click(null, null);
+            Menu_Inter_Splines_Click(null, null);
         }
 
         // Point class for general math use
@@ -708,17 +714,7 @@ namespace mat_290_framework
             // spline interpolation
             if (Menu_Inter_Splines.Checked)
             {
-                Point2D current_left;
-                Point2D current_right = new Point2D(SplineInterpolate(0));
-
-                for (float t = alpha; t < 1; t += alpha)
-                {
-                    current_left = current_right;
-                    current_right = SplineInterpolate(t);
-                    gfx.DrawLine(splinePen, current_left.P(), current_right.P());
-                }
-
-                gfx.DrawLine(splinePen, current_right.P(), SplineInterpolate(1).P());
+                DrawSplineInterpolate(gfx, alpha);
             }
 
             // deboor
@@ -1138,10 +1134,174 @@ namespace mat_290_framework
 
             return result;
         }
+        private int PerformOperation(List<List<double>> a, int n)
+        {
+            int i, j, k = 0, c, flag = 0;
 
+            // Performing elementary operations
+            for (i = 0; i < n; i++)
+            {
+                if (a[i][i] == 0)
+                {
+                    c = 1;
+                    while ((i + c) < n && a[i + c][i] == 0)
+                        c++;
+                    if ((i + c) == n)
+                    {
+                        flag = 1;
+                        break;
+                    }
+                    for (j = i, k = 0; k <= n; k++)
+                    {
+                        double temp = a[j][k];
+                        a[j][k] = a[j + c][k];
+                        a[j + c][k] = temp;
+                    }
+                }
+
+                for (j = 0; j < n; j++)
+                {
+
+                    // Excluding all i == j
+                    if (i != j)
+                    {
+
+                        // Converting Matrix to reduced row
+                        // echelon form(diagonal matrix)
+                        double p = a[j][i] / a[i][i];
+
+                        for (k = 0; k <= n; k++)
+                            a[j][k] = a[j][k] - (a[i][k]) * p;
+                    }
+                }
+            }
+            return flag;
+        }
+
+        void GetResult(List<List<double>> a, List<double> coeff)
+        {
+            int n = a.Count;
+            for (int i = 0; i < n; i++)
+                coeff.Add(a[i][n] / a[i][i]);
+        }
+        private void ComputeSplineSolution()
+        {
+            List<List<double>> matrixX = new List<List<double>>();
+            List<List<double>> matrixY = new List<List<double>>();
+
+            List<(double, double)> tValues = new List<(double, double)>();
+            for (int i = 0; i < pts_.Count; i++)
+            {
+                double t_2 = i * i;
+                tValues.Add((t_2, t_2 * i));
+            }
+
+            int k_last = pts_.Count - 1;
+
+            for (int i = 0; i < pts_.Count; i++)
+            {
+                //a0 a1 a2 a3
+                (double t_2, double t_3) = tValues[i];
+                List<double> rowX = new List<double> { 1.0, i, t_2, t_3 };
+                List<double> rowY = new List<double> { 1.0, i, t_2, t_3 };
+                for (int k = 1; k < k_last; k++)
+                {
+                    double piecewise_value = 0.0f;
+                    if (i > k)
+                    {
+                        double t_min_c = i - k;
+                        piecewise_value = t_min_c * t_min_c * t_min_c;
+                    }
+
+                    rowX.Add(piecewise_value);
+                    rowY.Add(piecewise_value);
+                }
+
+                rowX.Add(pts_[i].x);
+                rowY.Add(pts_[i].y);
+
+                matrixX.Add(rowX);
+                matrixY.Add(rowY);
+            }
+
+            List<double> derivative_x_zero = new List<double> { 0, 0, 2, 0 };
+            List<double> derivative_y_zero = new List<double> { 0, 0, 2, 0 };
+            for (int k = 1; k < k_last; k++)
+            {
+                derivative_x_zero.Add(0);
+                derivative_y_zero.Add(0);
+            }
+            derivative_x_zero.Add(0);
+            derivative_y_zero.Add(0);
+
+            matrixX.Add(derivative_x_zero);
+            matrixY.Add(derivative_y_zero);
+
+            List<double> derivative_x_k = new List<double> { 0, 0, 2, 6 * k_last };
+            List<double> derivative_y_k = new List<double> { 0, 0, 2, 6 * k_last };
+
+            for (int k = 1; k < k_last; k++)
+            {
+                double innerVal = 6.0 * (k_last - k);
+                derivative_x_k.Add(innerVal);
+                derivative_y_k.Add(innerVal);
+            }
+
+            derivative_x_k.Add(0);
+            derivative_y_k.Add(0);
+
+            matrixX.Add(derivative_x_k);
+            matrixY.Add(derivative_y_k);
+
+            PerformOperation(matrixX, matrixX.Count);
+            PerformOperation(matrixY, matrixY.Count);
+
+            splineXCoeff.Clear();
+            splineYCoeff.Clear();
+
+            GetResult(matrixX, splineXCoeff);
+            GetResult(matrixY, splineYCoeff);
+        }
+        private void DrawSplineInterpolate(System.Drawing.Graphics gfx, float alpha)
+        {
+            if (pts_.Count < 2)
+                return;
+            ComputeSplineSolution();
+
+            Point2D current_left;
+            Point2D current_right = new Point2D(SplineInterpolate(0));
+            
+            int k = pts_.Count - 1;
+
+            for (float t = alpha; t < k; t += alpha)
+            {
+                current_left = current_right;
+                current_right = SplineInterpolate(t);
+                gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+            }
+
+            gfx.DrawLine(splinePen, current_right.P(), SplineInterpolate(k).P());
+        }
         private Point2D SplineInterpolate(float t)
         {
-            return new Point2D(0, 0);
+
+            int k = pts_.Count - 1;
+            double t_two = t * t;
+            double t_three = t_two * t;
+            double x = splineXCoeff[0] + splineXCoeff[1] * t + splineXCoeff[2] * t_two + splineXCoeff[3] * t_three;
+            double y = splineYCoeff[0] + splineYCoeff[1] * t + splineYCoeff[2] * t_two + splineYCoeff[3] * t_three;
+
+            for (int i = 1; i < k; i++)
+            {
+                double computed_value = 0;
+                if (t >= i)
+                    computed_value = t - i;
+                x += splineXCoeff[3 + i] * computed_value * computed_value * computed_value;
+                y += splineYCoeff[3 + i] * computed_value * computed_value * computed_value;
+
+            }
+
+            return new Point2D(x, y);
         }
 
         private Point2D DeBoorAlgthm(float t)
