@@ -52,8 +52,13 @@ namespace mat_290_framework
             this.Lbl_knot = new System.Windows.Forms.Label();
             this.NUD_degree = new System.Windows.Forms.NumericUpDown();
             this.CB_cont = new System.Windows.Forms.CheckBox();
+            this.Lbl_N = new System.Windows.Forms.Label();
+            this.NUD_N = new System.Windows.Forms.NumericUpDown();
+            this.SavePoints = new System.Windows.Forms.ToolStripMenuItem();
+            this.LoadPoints = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_degree)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NUD_N)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -73,7 +78,9 @@ namespace mat_290_framework
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.Menu_Clear,
-            this.Menu_Exit});
+            this.Menu_Exit,
+            this.SavePoints,
+            this.LoadPoints});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -81,14 +88,14 @@ namespace mat_290_framework
             // Menu_Clear
             // 
             this.Menu_Clear.Name = "Menu_Clear";
-            this.Menu_Clear.Size = new System.Drawing.Size(101, 22);
+            this.Menu_Clear.Size = new System.Drawing.Size(180, 22);
             this.Menu_Clear.Text = "&Clear";
             this.Menu_Clear.Click += new System.EventHandler(this.Menu_Clear_Click);
             // 
             // Menu_Exit
             // 
             this.Menu_Exit.Name = "Menu_Exit";
-            this.Menu_Exit.Size = new System.Drawing.Size(101, 22);
+            this.Menu_Exit.Size = new System.Drawing.Size(180, 22);
             this.Menu_Exit.Text = "E&xit";
             this.Menu_Exit.Click += new System.EventHandler(this.Menu_Exit_Click);
             // 
@@ -171,21 +178,21 @@ namespace mat_290_framework
             // Menu_BezierCurves_DeCast
             // 
             this.Menu_BezierCurves_DeCast.Name = "Menu_BezierCurves_DeCast";
-            this.Menu_BezierCurves_DeCast.Size = new System.Drawing.Size(180, 22);
+            this.Menu_BezierCurves_DeCast.Size = new System.Drawing.Size(137, 22);
             this.Menu_BezierCurves_DeCast.Text = "DeCastlejau";
             this.Menu_BezierCurves_DeCast.Click += new System.EventHandler(this.Menu_Bezier_DeCast_Click);
             // 
             // Menu_BezierCurves_Bern
             // 
             this.Menu_BezierCurves_Bern.Name = "Menu_BezierCurves_Bern";
-            this.Menu_BezierCurves_Bern.Size = new System.Drawing.Size(180, 22);
+            this.Menu_BezierCurves_Bern.Size = new System.Drawing.Size(137, 22);
             this.Menu_BezierCurves_Bern.Text = "Bernstein";
             this.Menu_BezierCurves_Bern.Click += new System.EventHandler(this.Menu_BezierCurves_Bern_Click);
             // 
             // Menu_Midpoint
             // 
             this.Menu_Midpoint.Name = "Menu_Midpoint";
-            this.Menu_Midpoint.Size = new System.Drawing.Size(180, 22);
+            this.Menu_Midpoint.Size = new System.Drawing.Size(137, 22);
             this.Menu_Midpoint.Text = "&Midpoint";
             this.Menu_Midpoint.Click += new System.EventHandler(this.Menu_Midpoint_Click);
             // 
@@ -288,12 +295,49 @@ namespace mat_290_framework
             this.CB_cont.Visible = false;
             this.CB_cont.CheckedChanged += new System.EventHandler(this.CB_cont_CheckedChanged);
             // 
+            // Lbl_N
+            // 
+            this.Lbl_N.AutoSize = true;
+            this.Lbl_N.Location = new System.Drawing.Point(700, 478);
+            this.Lbl_N.Name = "Lbl_N";
+            this.Lbl_N.Size = new System.Drawing.Size(14, 12);
+            this.Lbl_N.TabIndex = 8;
+            this.Lbl_N.Text = "N";
+            // 
+            // NUD_N
+            // 
+            this.NUD_N.Location = new System.Drawing.Point(731, 475);
+            this.NUD_N.Name = "NUD_N";
+            this.NUD_N.Size = new System.Drawing.Size(61, 21);
+            this.NUD_N.TabIndex = 9;
+            this.NUD_N.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            // 
+            // SavePoints
+            // 
+            this.SavePoints.Name = "SavePoints";
+            this.SavePoints.Size = new System.Drawing.Size(180, 22);
+            this.SavePoints.Text = "SavePoints";
+            this.SavePoints.Click += new System.EventHandler(this.SavePoints_Click);
+            // 
+            // LoadPoints
+            // 
+            this.LoadPoints.Name = "LoadPoints";
+            this.LoadPoints.Size = new System.Drawing.Size(180, 22);
+            this.LoadPoints.Text = "LoadPoints";
+            this.LoadPoints.Click += new System.EventHandler(this.LoadPoints_Click);
+            // 
             // MAT290
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
             this.ClientSize = new System.Drawing.Size(924, 529);
+            this.Controls.Add(this.NUD_N);
+            this.Controls.Add(this.Lbl_N);
             this.Controls.Add(this.CB_cont);
             this.Controls.Add(this.NUD_degree);
             this.Controls.Add(this.Lbl_knot);
@@ -308,6 +352,7 @@ namespace mat_290_framework
             this.MaximizeBox = false;
             this.Name = "MAT290";
             this.Text = "MAT300-junwoo.seo";
+            this.Load += new System.EventHandler(this.MAT290_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MAT290_Paint);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MAT290_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MAT290_MouseMove);
@@ -315,6 +360,7 @@ namespace mat_290_framework
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_degree)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.NUD_N)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -346,6 +392,10 @@ namespace mat_290_framework
         private System.Windows.Forms.ToolStripMenuItem Menu_BezierCurves_DeCast;
         private System.Windows.Forms.ToolStripMenuItem Menu_BezierCurves_Bern;
         private System.Windows.Forms.ToolStripMenuItem Menu_Midpoint;
+        private System.Windows.Forms.Label Lbl_N;
+        private System.Windows.Forms.NumericUpDown NUD_N;
+        private System.Windows.Forms.ToolStripMenuItem SavePoints;
+        private System.Windows.Forms.ToolStripMenuItem LoadPoints;
     }
 }
 

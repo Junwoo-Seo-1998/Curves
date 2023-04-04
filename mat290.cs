@@ -1,8 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Reflection.Emit;
+using System.Security;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 using Label = System.Windows.Forms.Label;
@@ -21,6 +26,10 @@ namespace mat_290_framework
 
         private float padding_top = 0;
         private float padding_bottom = 0;
+
+        private float graph_y_min_max = 5;
+        private float graph_x_min_max = 10;
+
         private float y_min_max = 3.0f;
         const float rad = 25.0f;
         private List<Label> labels=new List<Label>();
@@ -29,7 +38,7 @@ namespace mat_290_framework
         {
             Label templab = new Label();
             templab.Text = text;
-            templab.Location = GraphPointToWindowPoint(pos).P();
+            templab.Location = NonNegativeGraphPointToWindowPoint(pos).P();
             //templab.AutoSize = true;
             templab.Font= new Font("Arial", 10);
             templab.BackColor = System.Drawing.Color.Transparent;
@@ -111,7 +120,7 @@ namespace mat_290_framework
             }
 
             shellLinePen.DashPattern = dashValues;
-            Menu_Inter_Splines_Click(null, null);
+            Menu_DeBoor_Click(null, null);
         }
 
         // Point class for general math use
@@ -262,8 +271,16 @@ namespace mat_290_framework
 
         private void MAT290_MouseDown(object sender, MouseEventArgs e)
         {
-            if(pts_.Count==20)
-                return;
+            int max_points = 20;
+
+            if (Menu_DeBoor.Checked)
+            {
+                max_points = 40;
+            }
+
+            if (pts_.Count == max_points)
+                    return;
+
             if (Menu_DeCast.Checked || Menu_Bern.Checked)
             {
                 return;
@@ -332,7 +349,7 @@ namespace mat_290_framework
 
             for (int i = 0; i < num_of_points; ++i)
             {
-                Point2D p = GraphPointToWindowPoint(new Point2D(i * space, 1.0f));
+                Point2D p = NonNegativeGraphPointToWindowPoint(new Point2D(i * space, 1.0f));
                 pts_.Add(p);
             }
         }
@@ -416,6 +433,7 @@ namespace mat_290_framework
             Menu_Shell.Enabled = false;
             Menu_Shell.Checked=false;
 
+            pts_.Clear();
             RemoveSlider();
         }
         private void Menu_Polyline_Click(object sender, EventArgs e)
@@ -574,7 +592,7 @@ namespace mat_290_framework
         private void ToggleDeBoorHUD( bool on )
         {
             // set up basic knot sequence
-            if( on )
+            if(on)
             {
                 ResetKnotSeq();
                 UpdateKnotSeq();
@@ -587,6 +605,9 @@ namespace mat_290_framework
 
             Lbl_degree.Visible = on;
             NUD_degree.Visible = on;
+
+            Lbl_N.Visible = on;
+            NUD_N.Visible = on;
         }
 
         private void MAT290_Paint(object sender, PaintEventArgs e)
@@ -595,11 +616,44 @@ namespace mat_290_framework
             DrawScreen(e.Graphics);
         }
 
-        
         private Point2D WindowPointToGraphPoint(Point2D point)
         {
-            double w=Bounds.Width;
-            double h =Bounds.Height;
+            double w = Bounds.Width - (padding_left + padding_right);
+            double h = Bounds.Height - (padding_top + padding_bottom);
+
+            double A = w / (2.0 * graph_x_min_max);
+            double B = -h / (2.0 * graph_y_min_max);
+
+            double tX = w / 2.0 + padding_left;
+            double tY = h / 2.0 + padding_top;
+
+            tX = -tX / A;
+            tY = -tY / B;
+            
+            A = 1.0 / A;
+            B = 1.0 / B;
+
+            return new Point2D(A * point.x + tX, B * point.y + tY);
+        }
+
+        private Point2D GraphPointToWindowPoint(Point2D point)
+        {
+            double w = Bounds.Width - (padding_left + padding_right);
+            double h = Bounds.Height - (padding_top + padding_bottom);
+
+            double A = w / (2.0 * graph_x_min_max);
+            double B = -h / (2.0 * graph_y_min_max);
+
+            double tX = w / 2.0 + padding_left;
+            double tY = h / 2.0 + padding_top;
+
+            return new Point2D(A * point.x + tX, B * point.y + tY);
+        }
+
+        private Point2D WindowPointToNonNegativeGraphPoint(Point2D point)
+        {
+            double w = Bounds.Width;
+            double h = Bounds.Height;
 
             double By = (h - padding_bottom + padding_top) / 2.0;
             double Ay = (padding_top - By) / (double)y_min_max;
@@ -610,7 +664,7 @@ namespace mat_290_framework
             return new Point2D((float)x, (float)y);
         }
 
-        private Point2D GraphPointToWindowPoint(Point2D point)
+        private Point2D NonNegativeGraphPointToWindowPoint(Point2D point)
         {
             double w = Bounds.Width;
             double h = Bounds.Height;
@@ -636,9 +690,86 @@ namespace mat_290_framework
         System.Drawing.Pen hlinePen = new Pen(Color.DimGray, 0.25f);
         System.Drawing.Pen yPen = new Pen(Color.DeepSkyBlue, 0.5f);
         Font bFont = new Font("Arial", 12);
+        Font arial = new Font("Arial", 12);
+        private int grid_step = 1;
+        private void DrawGrid(System.Drawing.Graphics gfx)
+        {
+            
+            var p1 = GraphPointToWindowPoint(new Point2D(0.0f, graph_y_min_max)).P();
+            var p2 = GraphPointToWindowPoint(new Point2D(0.0f, -graph_y_min_max)).P();
 
+            gfx.DrawLine(yPen, p1, p2);
+
+            p1 = GraphPointToWindowPoint(new Point2D(-graph_x_min_max, 0)).P();
+            p2 = GraphPointToWindowPoint(new Point2D(graph_x_min_max, 0)).P();
+            gfx.DrawLine(xPen, p1, p2);
+
+            p1 = GraphPointToWindowPoint(new Point2D(0, 0)).P();
+            gfx.DrawString("0", bFont, Brushes.Red, p1.X, p1.Y);
+
+            int steps = (int)graph_y_min_max / grid_step;
+            for (int i = 1; i <= steps; i++)
+            {
+                float yval = i * grid_step;
+                p1 = GraphPointToWindowPoint(new Point2D(-graph_x_min_max, yval)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(graph_x_min_max, yval)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                p1 = GraphPointToWindowPoint(new Point2D(0, yval)).P();
+                gfx.DrawString(yval.ToString(), bFont, Brushes.Black, p1.X, p1.Y);
+
+                yval = -yval;
+                p1 = GraphPointToWindowPoint(new Point2D(-graph_x_min_max, yval)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(graph_x_min_max, yval)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                p1 = GraphPointToWindowPoint(new Point2D(0, yval)).P();
+                gfx.DrawString(yval.ToString(), bFont, Brushes.Black, p1.X, p1.Y);
+            }
+            steps = (int)graph_x_min_max / grid_step;
+            for (int i = 1; i <= steps; i++)
+            {
+                float xval = i * grid_step;
+                p1 = GraphPointToWindowPoint(new Point2D(xval, graph_y_min_max)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(xval, -graph_y_min_max)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                p1 = GraphPointToWindowPoint(new Point2D(xval, 0)).P();
+                gfx.DrawString(xval.ToString(), bFont, Brushes.Black, p1.X, p1.Y);
+
+                xval = -xval;
+                p1 = GraphPointToWindowPoint(new Point2D(xval, graph_y_min_max)).P();
+                p2 = GraphPointToWindowPoint(new Point2D(xval, -graph_y_min_max)).P();
+                gfx.DrawLine(hlinePen, p1, p2);
+                p1 = GraphPointToWindowPoint(new Point2D(xval, 0)).P();
+                gfx.DrawString(xval.ToString(), bFont, Brushes.Black, p1.X, p1.Y);
+            }
+        }
         private void DrawScreen(System.Drawing.Graphics gfx)
         {
+            if (Menu_DeCast.Checked)
+            {
+                gfx.DrawString("DeCasteljau", arial, Brushes.Black, 0, 30);
+            }
+            else if (Menu_BezierCurves_DeCast.Checked)
+            {
+                gfx.DrawString("DeCasteljau", arial, Brushes.Black, 0, 30);
+            }
+            else if (Menu_BezierCurves_Bern.Checked)
+            {
+                gfx.DrawString("Bernstein", arial, Brushes.Black, 0, 30);
+            }
+            else if (Menu_Midpoint.Checked)
+            {
+                gfx.DrawString("Midpoint", arial, Brushes.Black, 0, 30);
+            }
+            else if (Menu_Bern.Checked)
+            {
+                gfx.DrawString("Bernstein", arial, Brushes.Black, 0, 30);
+            }
+            else if (Menu_DeBoor.Checked)
+            {
+                DrawGrid(gfx);
+                gfx.DrawString("DeBoor", arial, Brushes.Black, 0, 30);
+            }
+
             // to prevent unecessary drawing
             if (pts_.Count == 0)
                 return;
@@ -720,18 +851,7 @@ namespace mat_290_framework
             // deboor
             if (Menu_DeBoor.Checked && pts_.Count >= 2)
             {
-                Point2D current_left;
-                Point2D current_right = new Point2D(DeBoorAlgthm(knot_[degree_]));
-
-                float lastT = knot_[knot_.Count - degree_ - 1] - alpha;
-                for (float t = alpha; t < lastT; t += alpha)
-                {
-                    current_left = current_right;
-                    current_right = DeBoorAlgthm(t);
-                    gfx.DrawLine(splinePen, current_left.P(), current_right.P());
-                }
-
-                gfx.DrawLine(splinePen, current_right.P(), DeBoorAlgthm(lastT).P());
+                DrawDeBoor(gfx, alpha);
             }
 
             ///////////////////////////////////////////////////////////////////////////////
@@ -740,33 +860,6 @@ namespace mat_290_framework
 
 
             // Heads up Display drawing code
-
-            Font arial = new Font("Arial", 12);
-
-            if (Menu_DeCast.Checked)
-            {
-                gfx.DrawString("DeCasteljau", arial, Brushes.Black, 0, 30);
-            }
-            else if (Menu_BezierCurves_DeCast.Checked)
-            {
-                gfx.DrawString("DeCasteljau", arial, Brushes.Black, 0, 30);
-            }
-            else if (Menu_BezierCurves_Bern.Checked)
-            {
-                gfx.DrawString("Bernstein", arial, Brushes.Black, 0, 30);
-            }
-            else if (Menu_Midpoint.Checked)
-            {
-                gfx.DrawString("Midpoint", arial, Brushes.Black, 0, 30);
-            }
-            else if (Menu_Bern.Checked)
-            {
-                gfx.DrawString("Bernstein", arial, Brushes.Black, 0, 30);
-            }
-            else if (Menu_DeBoor.Checked)
-            {
-                gfx.DrawString("DeBoor", arial, Brushes.Black, 0, 30);
-            }
 
             if (Menu_BezierCurves_DeCast.Checked||Menu_Midpoint.Checked)
             {
@@ -827,7 +920,7 @@ namespace mat_290_framework
 
             for (int i = 0; i < pts_.Count; ++i)
             {
-                float y = (float)WindowPointToGraphPoint(pts_[i]).y;
+                float y = (float)WindowPointToNonNegativeGraphPoint(pts_[i]).y;
                 decast_vals.Add(y);
             }
 
@@ -839,7 +932,7 @@ namespace mat_290_framework
                 }
             }
 
-            var graphPointToWindow = GraphPointToWindowPoint(new Point2D(t, decast_vals[0]));
+            var graphPointToWindow = NonNegativeGraphPointToWindowPoint(new Point2D(t, decast_vals[0]));
             return graphPointToWindow;
         }
 
@@ -858,10 +951,10 @@ namespace mat_290_framework
             float sum = 0;
             for (int i = 0; i <= degree_; i++)
             {
-                float c = (float)WindowPointToGraphPoint(new Point2D(0, pts_[i].y)).y;
+                float c = (float)WindowPointToNonNegativeGraphPoint(new Point2D(0, pts_[i].y)).y;
                 sum += c * PascalValues[degree_][i] * one_min_t_pows[degree_ - i] * t_pows[i];
             }
-            var graphPointToWindow = GraphPointToWindowPoint(new Point2D(t, sum));
+            var graphPointToWindow = NonNegativeGraphPointToWindowPoint(new Point2D(t, sum));
             return graphPointToWindow;
         }
 
@@ -1000,31 +1093,31 @@ namespace mat_290_framework
             PointF p2 = new PointF(950, 50);
             gfx.DrawLine(shellPen, p1, p2);
 
-            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
-            p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
+            p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
+            p2 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
 
             gfx.DrawLine(yPen, p1, p2);
 
-            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
-            p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
+            p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
+            p2 = NonNegativeGraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
             gfx.DrawLine(xPen, p1, p2);
             gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
 
             for (int i = 1; i <= 3; i++)
             {
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
+                p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, i)).P();
+                p2 = NonNegativeGraphPointToWindowPoint(new Point2D(1.0f, i)).P();
                 gfx.DrawLine(hlinePen, p1, p2);
                 gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
 
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
+                p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
+                p2 = NonNegativeGraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
                 gfx.DrawLine(hlinePen, p1, p2);
                 gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
             }
             foreach (var point in pts_)
             {
-                float t = (float)WindowPointToGraphPoint(point).y;
+                float t = (float)WindowPointToNonNegativeGraphPoint(point).y;
                 gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, (float)point.x, (float)point.y + 10);
             }
 
@@ -1047,32 +1140,32 @@ namespace mat_290_framework
             PointF p2 = new PointF(950, 50);
             gfx.DrawLine(shellPen, p1, p2);
 
-            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
-            p2 = GraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
+            p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, 3)).P();
+            p2 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, -3)).P();
 
             gfx.DrawLine(yPen, p1, p2);
 
-            p1 = GraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
-            p2 = GraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
+            p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, 0)).P();
+            p2 = NonNegativeGraphPointToWindowPoint(new Point2D(1.0f, 0)).P();
             gfx.DrawLine(xPen, p1, p2);
             gfx.DrawString("0", bFont, Brushes.Red, p1.X - 20, p1.Y - 10);
 
             for (int i = 1; i <= 3; i++)
             {
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, i)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(1.0f, i)).P();
+                p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, i)).P();
+                p2 = NonNegativeGraphPointToWindowPoint(new Point2D(1.0f, i)).P();
                 gfx.DrawLine(hlinePen, p1, p2);
                 gfx.DrawString(i.ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
 
-                p1 = GraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
-                p2 = GraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
+                p1 = NonNegativeGraphPointToWindowPoint(new Point2D(0.0f, -i)).P();
+                p2 = NonNegativeGraphPointToWindowPoint(new Point2D(1.0f, -i)).P();
                 gfx.DrawLine(hlinePen, p1, p2);
                 gfx.DrawString((-i).ToString(), bFont, Brushes.Black, p1.X - 20, p1.Y - 10);
             }
 
             foreach (var point in pts_)
             {
-                float t = (float)WindowPointToGraphPoint(point).y;
+                float t = (float)WindowPointToNonNegativeGraphPoint(point).y;
                 gfx.DrawString(t.ToString("F"), bFont, Brushes.Gray, (float)point.x, (float)point.y + 10);
             }
 
@@ -1282,6 +1375,7 @@ namespace mat_290_framework
 
             gfx.DrawLine(splinePen, current_right.P(), SplineInterpolate(k).P());
         }
+
         private Point2D SplineInterpolate(float t)
         {
 
@@ -1304,11 +1398,200 @@ namespace mat_290_framework
             return new Point2D(x, y);
         }
 
-        private Point2D DeBoorAlgthm(float t)
+        private void DrawDeBoor(System.Drawing.Graphics gfx, float alpha)
         {
-            return new Point2D(0, 0);
+
+            foreach (var point in pts_)
+            {
+                double x = WindowPointToGraphPoint(point).x;
+                double y = WindowPointToGraphPoint(point).y;
+                gfx.DrawString($"({x:F},{y:F})", Font, Brushes.Gray, (float)point.x, (float)point.y + 10);
+            }
+
+            Point2D current_left;
+            Point2D current_right = new Point2D(DeBoorAlgthm(knot_[degree_]));
+            double lastT = knot_[knot_.Count - degree_ - 1] - 0.01;
+            for (float t = knot_[degree_]; t < lastT-0.1; t += alpha)
+            {
+                current_left = current_right;
+                current_right = DeBoorAlgthm(t);
+                gfx.DrawLine(splinePen, current_left.P(), current_right.P());
+            }
+            gfx.DrawLine(splinePen, current_right.P(), DeBoorAlgthm(lastT).P());
+        }
+        private Point2D DeBoorAlgthm(double t)
+        {
+            int s = pts_.Count - 1;
+            int j = FindJ(t);
+            List<Point2D> dynamicTable = new List<Point2D>(pts_);
+            
+            for (int k = 1; k < degree_; k++)
+            {
+                for (int i = s; i >= k; --i) 
+                {
+                    double coeffP_i = (t - knot_[i]) / (knot_[i + degree_ - (k - 1)] - knot_[i]);
+                    double coeffP_i_1 = (knot_[i + degree_ - (k - 1)] - t) / (knot_[i + degree_ - (k - 1)] - knot_[i]);
+
+                    dynamicTable[i] = dynamicTable[i] * coeffP_i + dynamicTable[i - 1] * coeffP_i_1;
+                }
+            }
+
+            double coeffP_j = (t - knot_[j]) / (knot_[j + degree_ - (degree_ - 1)] - knot_[j]);
+            double coeffP_j_1 = (knot_[j + degree_ - (degree_ - 1)] - t) / (knot_[j + degree_ - (degree_ - 1)] - knot_[j]);
+            return dynamicTable[j] * coeffP_j + dynamicTable[j - 1] * coeffP_j_1;
         }
 
+        private Point2D DeBoorAlgthmHelper(List<List<Point2D>> dynamicTable, List<List<bool>> isComputed, int k, int i, double t)
+        {
+            /*if (k == 0)
+                return pts_[i];*/
+            if (isComputed[k][i])
+                return dynamicTable[k][i];
 
+            double coeffP_i = (t - knot_[i]) / (knot_[i + degree_ - (k - 1)] - knot_[i]);
+            double coeffP_i_1 = (knot_[i + degree_ - (k - 1)] - t) / (knot_[i + degree_ - (k - 1)] - knot_[i]);
+
+            Point2D P_i_1 = DeBoorAlgthmHelper(dynamicTable, isComputed, k - 1, i - 1, t);
+            Point2D P_i = DeBoorAlgthmHelper(dynamicTable, isComputed, k - 1, i, t);
+
+            dynamicTable[k][i] = P_i * coeffP_i + P_i_1 * coeffP_i_1;
+            return dynamicTable[k][i];
+
+        }
+
+        private int FindJ(double t)
+        {
+            if (t >= knot_[knot_.Count - 1])
+                return knot_.Count - 1;
+
+            int j = 0;
+            
+            for (int i = 0; i < knot_.Count; i++)
+            {
+                if (knot_[i] <= t && t < knot_[i + 1])
+                {
+                    j = i;
+                    break;
+                }
+            }
+            return j;
+        }
+
+        private void MAT290_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void SavePoints_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Text|*.txt";
+            saveFileDialog.Title = "Save an Points File";
+            saveFileDialog.ShowDialog();
+
+            if (saveFileDialog.FileName != "")
+            {
+                System.IO.FileStream fs =
+                    (System.IO.FileStream)saveFileDialog.OpenFile();
+
+                using (var writer=new StreamWriter(fs))
+                {
+                    writer.WriteLine($"{degree_}");
+
+                    writer.WriteLine($"p");
+                    foreach (var point in pts_)
+                    {
+                        writer.WriteLine($"{point.x} {point.y}");
+                    }
+
+                    writer.WriteLine($"k");
+                    if (Menu_DeBoor.Checked)
+                    {
+                        foreach (var knot in knot_)
+                        {
+                            writer.WriteLine($"{knot}");
+                        }
+                    }
+                }
+
+                fs.Close();
+            }
+
+        }
+
+        private void LoadPoints_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog()
+            {
+                FileName = "Select a point file",
+                Filter = "point files (*.txt)|*.txt",
+                Title = "Open your saved points file"
+            };
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    var filePath = openFileDialog.FileName;
+                    using (FileStream fs = (FileStream)openFileDialog.OpenFile()) 
+                    using (StreamReader sr = new StreamReader(fs))
+                    {
+                        //Process.Start("notepad.exe", filePath);
+                        
+                        var newpts = new List<Point2D>();
+                        var newknot = new List<float>();
+                        string line = null;
+                        line = sr.ReadLine();
+                        degree_ = Convert.ToInt32(line);
+                        bool saveKnot = false;
+                        while (true)
+                        {
+                            line=sr.ReadLine();
+                            if(line==null)
+                                break;
+                            if (line == "p")
+                            {
+                                continue;
+                            }
+                            else if (line == "k")
+                            {
+                                saveKnot = true;
+                                continue;
+                            }
+
+                            if (!saveKnot)
+                            {
+                                string[] words = line.Split(' ');
+                                var x = Convert.ToDouble(words[0]);
+                                var y = Convert.ToDouble(words[1]);
+                                newpts.Add(new Point2D(x, y));
+                            }
+                            else
+                            {
+                                newknot.Add(Convert.ToSingle(line));
+                            }
+                            
+                            //Console.WriteLine(line);
+                        }
+
+                        if (newpts.Count != 0)
+                            pts_ = newpts;
+
+                        if (newknot.Count != 0)
+                            knot_ = newknot;
+
+
+                        ResetKnotSeq();
+                        UpdateKnotSeq();
+                        NUD_degree.Value = degree_;
+                        Refresh();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error happend: check your file");
+                }
+            }
+        }
     }
 }
