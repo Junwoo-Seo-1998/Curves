@@ -1,6 +1,6 @@
-namespace mat_290_framework
+namespace Curves
 {
-    partial class MAT290
+    partial class Curves
     {
         /// <summary>
         /// Required designer variable.
@@ -32,6 +32,8 @@ namespace mat_290_framework
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Clear = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Exit = new System.Windows.Forms.ToolStripMenuItem();
+            this.SavePoints = new System.Windows.Forms.ToolStripMenuItem();
+            this.LoadPoints = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Polyline = new System.Windows.Forms.ToolStripMenuItem();
             this.Menu_Points = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,8 +56,6 @@ namespace mat_290_framework
             this.CB_cont = new System.Windows.Forms.CheckBox();
             this.Lbl_N = new System.Windows.Forms.Label();
             this.NUD_N = new System.Windows.Forms.NumericUpDown();
-            this.SavePoints = new System.Windows.Forms.ToolStripMenuItem();
-            this.LoadPoints = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_degree)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_N)).BeginInit();
@@ -88,16 +88,30 @@ namespace mat_290_framework
             // Menu_Clear
             // 
             this.Menu_Clear.Name = "Menu_Clear";
-            this.Menu_Clear.Size = new System.Drawing.Size(180, 22);
+            this.Menu_Clear.Size = new System.Drawing.Size(133, 22);
             this.Menu_Clear.Text = "&Clear";
             this.Menu_Clear.Click += new System.EventHandler(this.Menu_Clear_Click);
             // 
             // Menu_Exit
             // 
             this.Menu_Exit.Name = "Menu_Exit";
-            this.Menu_Exit.Size = new System.Drawing.Size(180, 22);
+            this.Menu_Exit.Size = new System.Drawing.Size(133, 22);
             this.Menu_Exit.Text = "E&xit";
             this.Menu_Exit.Click += new System.EventHandler(this.Menu_Exit_Click);
+            // 
+            // SavePoints
+            // 
+            this.SavePoints.Name = "SavePoints";
+            this.SavePoints.Size = new System.Drawing.Size(133, 22);
+            this.SavePoints.Text = "SavePoints";
+            this.SavePoints.Click += new System.EventHandler(this.SavePoints_Click);
+            // 
+            // LoadPoints
+            // 
+            this.LoadPoints.Name = "LoadPoints";
+            this.LoadPoints.Size = new System.Drawing.Size(133, 22);
+            this.LoadPoints.Text = "LoadPoints";
+            this.LoadPoints.Click += new System.EventHandler(this.LoadPoints_Click);
             // 
             // viewToolStripMenuItem
             // 
@@ -316,21 +330,7 @@ namespace mat_290_framework
             0,
             0});
             // 
-            // SavePoints
-            // 
-            this.SavePoints.Name = "SavePoints";
-            this.SavePoints.Size = new System.Drawing.Size(180, 22);
-            this.SavePoints.Text = "SavePoints";
-            this.SavePoints.Click += new System.EventHandler(this.SavePoints_Click);
-            // 
-            // LoadPoints
-            // 
-            this.LoadPoints.Name = "LoadPoints";
-            this.LoadPoints.Size = new System.Drawing.Size(180, 22);
-            this.LoadPoints.Text = "LoadPoints";
-            this.LoadPoints.Click += new System.EventHandler(this.LoadPoints_Click);
-            // 
-            // MAT290
+            // Curves
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -350,13 +350,13 @@ namespace mat_290_framework
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;
-            this.Name = "MAT290";
-            this.Text = "MAT300-junwoo.seo";
+            this.Name = "Curves";
+            this.Text = "Curves-junwoo.seo";
             this.Load += new System.EventHandler(this.MAT290_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.MAT290_Paint);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MAT290_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MAT290_MouseMove);
-            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.MAT290_MouseWheel);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Curves_MouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Curves_MouseMove);
+            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.Curves_MouseWheel);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NUD_degree)).EndInit();

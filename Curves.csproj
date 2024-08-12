@@ -7,8 +7,8 @@
     <ProjectGuid>{145EB558-F1E1-4685-9F58-2A163255AABC}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>mat_290_framework</RootNamespace>
-    <AssemblyName>mat_290_framework</AssemblyName>
+    <RootNamespace>Curves</RootNamespace>
+    <AssemblyName>Curves</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -51,17 +51,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="mat290.cs">
+    <Compile Include="Curves.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="mat290.Designer.cs">
-      <DependentUpon>mat290.cs</DependentUpon>
+    <Compile Include="Curves.Designer.cs">
+      <DependentUpon>Curves.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="mat290.resx">
+    <EmbeddedResource Include="Curves.resx">
       <SubType>Designer</SubType>
-      <DependentUpon>mat290.cs</DependentUpon>
+      <DependentUpon>Curves.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

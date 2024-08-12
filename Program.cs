@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace mat_290_framework
+namespace Curves
 {
     static class Program
     {
@@ -14,7 +14,7 @@ namespace mat_290_framework
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MAT290());
+            Application.Run(new Curves());
         }
     }
 }

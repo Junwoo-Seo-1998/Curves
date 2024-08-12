@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mat_290_framework", "mat_290_framework.csproj", "{145EB558-F1E1-4685-9F58-2A163255AABC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Curves", "Curves.csproj", "{145EB558-F1E1-4685-9F58-2A163255AABC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

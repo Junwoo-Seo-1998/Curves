@@ -12,9 +12,9 @@ using System.Text;
 using System.Windows.Forms;
 using Label = System.Windows.Forms.Label;
 
-namespace mat_290_framework
+namespace Curves
 {
-    public partial class MAT290 : Form
+    public partial class Curves : Form
     {
         private List<List<int>> PascalValues;
         private List<List<Point2D>> NewtonFormList;
@@ -85,7 +85,7 @@ namespace mat_290_framework
             }
         }
 
-        public MAT290()
+        public Curves()
         {
             InitializeComponent();
             padding_left = Bounds.Width * 0.1f;
@@ -240,7 +240,7 @@ namespace mat_290_framework
             Application.Exit();
         }
 
-        private void MAT290_MouseMove(object sender, MouseEventArgs e)
+        private void Curves_MouseMove(object sender, MouseEventArgs e)
         {
             if (Menu_DeCast.Checked || Menu_Bern.Checked)
             {
@@ -269,7 +269,7 @@ namespace mat_290_framework
             }
         }
 
-        private void MAT290_MouseDown(object sender, MouseEventArgs e)
+        private void Curves_MouseDown(object sender, MouseEventArgs e)
         {
             int max_points = 20;
 
@@ -324,7 +324,7 @@ namespace mat_290_framework
             }
         }
 
-        private void MAT290_MouseWheel(object sender, MouseEventArgs e)
+        private void Curves_MouseWheel(object sender, MouseEventArgs e)
         {
             // if the mouse wheel has moved
             if (e.Delta != 0)
@@ -1587,7 +1587,7 @@ namespace mat_290_framework
                         Refresh();
                     }
                 }
-                catch (Exception ex)
+                catch (Exception /*ex*/)
                 {
                     MessageBox.Show($"Error happend: check your file");
                 }
